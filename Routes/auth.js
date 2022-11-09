@@ -11,7 +11,6 @@ router.get('/', (req, res) => {
 
     res.send("hello this is main directory");
 })
-
 // route for signup
 router.post('/signup', (req, res) => {
 
@@ -33,27 +32,17 @@ router.post('/signup', (req, res) => {
                     name,
                     pic
                 })
-
                 user.save().then((user) => {
                     res.json({ message: "saved successfully" })
                 }).catch(err => { console.log(err) })
             })
-
-
     }).catch(err => { console.log(err) })
 })
 
-
-
-
-router.get('/privateData',login, (req,res)=>{
+router.get('/privateData', login, (req, res) => {
 
     res.send("hello user this is private data")
 })
-
-
-
-
 //route for signin
 router.post('/signin', (req, res) => {
     const { email, password } = req.body;
@@ -67,28 +56,19 @@ router.post('/signin', (req, res) => {
         bcrypt.compare(password, savedUser.password).then(matched => {
             if (matched) {
                 //res.json({ "message": "successfully signed in" })
-                const token = jt.sign({_id:savedUser._id});
-                const {_id,name,email,followers,following,pic} = savedUser
-                res.json({token,user:{_id,name,email,followers,following,pic}})
+                const token = jt.sign({ _id: savedUser._id });
+                const { _id, name, email, followers, following, pic } = savedUser
+                res.json({ token, user: { _id, name, email, followers, following, pic } })
             }
             else {
-                 res.status(422).json({"error":"Invalid password or Eamil"});
-                
-
+                res.status(422).json({ "error": "Invalid password or Eamil" });
             }
         }).catch(err => { console.log(err) })
     })
-
-
-
-
-
     // testing
 
     // "email": "nomi@ibsSucker.com",
     // "password":"wawawawa"
-
-
 })
 
 

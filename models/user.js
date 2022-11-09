@@ -1,27 +1,27 @@
 const mongoose = require('mongoose');
-const { ObjectId} = mongoose.Schema.Types;
-const userSchema = new mongoose.Schema({
-    name:{
-        type: String,
-        required : true
-    },
 
-    email:{
+const { Schema } = mongoose;
+
+const UserSchema = new Schema({
+    _id:{
+        type: Schema.Types.ObjectId,
+        required: true,
+        auto:true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        match: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    },
+    name: {
         type: String,
         required: true
     },
-
-    password:{
+    role: {
         type: String,
         required: true
     },
-    pic:{
-        type:String,
-        default:"https://res.cloudinary.com/doidlafka/image/upload/v1622565309/dummy-profile-pic-300x300-1_mplinc.png"
-    },
-    followers:[{type:ObjectId,ref:"User"}],
-    following:[{type:ObjectId,ref:"User"}]
+});
 
-})
-
-mongoose.model("User",userSchema);
+module.exports = mongoose.model('User', UserSchema);

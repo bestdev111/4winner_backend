@@ -1,24 +1,28 @@
+const bodyParser = require('body-parser');
 const express = require('express');
 require('dotenv').config();
 const app = express();
 const cors = require("cors");
 app.use(cors());
 const mongoose = require('mongoose')
-const scrapeStaticWebpage = require("./scrapers/staticSiteScraper");
+const getMatches = require("./scrapers/getMatches");
+const getAllMatches = require("./scrapers/getAllMatches");
+const user = require('./routes/user');
 
-mongoose.connect('mongodb://127.0.0.1:27017/SportData', { useNewUrlParser: true });
-
-require('./models/user');
-scrapeStaticWebpage();
+mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true })
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.log('Failed to connect to MongoDB', err));
+    
 setInterval(() => {
-    scrapeStaticWebpage();
-}, 5000);
+// getMatches();
+// getAllMatches();
+}, 10000);
 
 // using middlewares
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json())
-app.use(require('./Routes/auth'))
-app.use(require('./Routes/user'))
+app.use('/user', user);
 
 // listenig to port
 const port = 5000

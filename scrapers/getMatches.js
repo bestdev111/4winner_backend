@@ -10,8 +10,7 @@ const dataDir = path.join(__dirname, "../data/");
 // URL of the page we want to scrape
 const url =
   "https://4winners.bet/Home/GetMatches?sportTypeId=1&betradarCategoryId=0&leagueName=&matchState=home&startIndex=0&orderByLeague=true";
-
-const scrapeStaticWebpage = async () => {
+const getMatches = async () => {
   try {
     const { data } = await axios.get(url);
     processData(data);
@@ -20,23 +19,22 @@ const scrapeStaticWebpage = async () => {
   }
 };
 
-function processData(data) {
-  console.log("Processing Data...");
-  console.log('consolelog', data);
-  const items = [];
-  items = data.matches;
-
-  fs.writeFile(
-    `${dataDir}ishoppingData.json`,
+async function processData(data) {
+  // console.log('Processing Data:', data);
+  let items = [];
+  items = data;
+  
+  await fs.writeFile(
+    `${dataDir}getMatches.json`,
     JSON.stringify(items, null, 2),
     (err) => {
       if (err) {
         console.error(err);
         return;
       }
-      console.log("Successfully written data to file2");
+      console.log("Successfully written data -> GetMatches");
     }
   );
 }
 
-module.exports = scrapeStaticWebpage;
+module.exports = getMatches;
