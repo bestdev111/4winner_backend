@@ -16,10 +16,25 @@ const UserSchema = new Schema({
     },
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
+    },
+    password: {
+        type: String,
+        required: true,
+        default: 'user'
     },
     role: {
-        type: String,
+        type: Number,
+        required: true,
+    },
+    balance: {
+        type: Number,
+        required: true,
+        default: 0.00
+    },
+    createdAt: {
+        type: Number,
         required: true
     },
 });
