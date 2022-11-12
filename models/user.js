@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
-
+const UserRole = require("../models/userrole")
 const UserSchema = new Schema({
     _id:{
         type: Schema.Types.ObjectId,
@@ -24,9 +24,10 @@ const UserSchema = new Schema({
         required: true,
         default: 'user'
     },
-    role: {
+    userrole_id: {
         type: Number,
         required: true,
+        ref: UserRole
     },
     balance: {
         type: Number,
