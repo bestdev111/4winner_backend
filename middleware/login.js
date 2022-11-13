@@ -1,7 +1,7 @@
 const jt = require('jsonwebtoken');
 // const {JT_SECRET} = require("../keys");
 const mongoose = require('mongoose');
-const User = mongoose.model("../models/user");
+const User = require("../models/user")
 module.exports = function(req,res,next){
 
     const {authorization} = req.headers;

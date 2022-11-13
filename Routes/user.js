@@ -3,14 +3,10 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const { restart } = require('nodemon');
-const path = require("path");
-const fs = require("fs");
 const jwt = require('jsonwebtoken');
-const dataDir = path.join(__dirname, "../data/");
-// const login = require('../middleware/login')
+const login = require('../middleware/login')
 const User = require("../models/user")
 const UserRole = require("../models/userrole")
-const SportType = require("../models/sportType")
 const validateRegister = require('../validation/validateRegister');
 const validateLogin = require('../validation/validateLogin');
 
@@ -22,39 +18,6 @@ router.get('/', async (req, res) => {
             res.status(200).json(users);
         }
     });
-});
-router.get('/getAllMatches', async (req, res) => {
-    try {
-        await fs.readFile(`${dataDir}getAllMatches.json`, 'utf8', (err, stringData) => {
-            if (err) {
-                console.error(err);
-                res.status(500).json({ err });
-                return;
-            }
-            const data = JSON.parse(stringData);
-            console.log('data', data.totalOutrightsCount);
-            res.status(200).json({ data });
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ err });
-    }
-});
-router.get('/getMatches', async (req, res) => {
-    try {
-        await fs.readFile(`${dataDir}getMatches.json`, 'utf8', (err, stringData) => {
-            if (err) {
-                console.error(err);
-                res.status(500).json({ err });
-                return;
-            }
-            const data = JSON.parse(stringData);
-            res.status(200).json({ data });
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ err });
-    }
 });
 
 router.post('/login', async (req, res) => {
@@ -147,7 +110,7 @@ router.post('/register', async (req, res) => {
         return res.status(500).json({ err });
     }
 });
-router.post('/add-role', async (req, res) => {
+router.post('/add-role', login, async (req, res) => {
     try {
         const userrole = await UserRole.find({ roleName: req.body.roleName }).exec();
         if (userrole.length > 0) {

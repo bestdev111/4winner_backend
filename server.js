@@ -8,6 +8,7 @@ const mongoose = require('mongoose')
 const getMatches = require("./scrapers/getMatches");
 const getAllMatches = require("./scrapers/getAllMatches");
 const user = require('./routes/user');
+const sports = require('./routes/sports');
 
 mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true })
     .then(() => console.log('Connected to MongoDB'))
@@ -23,6 +24,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json())
 app.use('/user', user);
+app.use('/sports', sports);
 
 // listenig to port
 const port = 5000
