@@ -7,7 +7,7 @@ app.use(cors());
 const mongoose = require('mongoose')
 const getMatches = require("./scrapers/getMatches");
 const getAllMatches = require("./scrapers/getAllMatches");
-const user = require('./routes/user');
+const user = require('./routes/users/users');
 const sports = require('./routes/sports');
 
 mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true })

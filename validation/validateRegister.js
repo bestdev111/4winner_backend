@@ -40,12 +40,11 @@ const validateRegister = (data) => {
     errors.passwordConfirm = 'Password must have between 6 and 30 chars';
   }
 
+  if (validator.isEmpty(data.passwordConfirm)) {
+    errors.passwordConfirm = 'Confirm Password is required';
+  }
   if (!validator.equals(data.password, data.passwordConfirm)) {
     errors.passwordConfirm = 'Password and Confirm Password must match';
-  }
-
-  if (validator.isEmpty(data.passwordConfirm)) {
-    errors.passwordConfirm = 'Password is required';
   }
 
   return {

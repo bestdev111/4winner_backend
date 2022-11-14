@@ -1,24 +1,39 @@
-const jt = require('jsonwebtoken');
-// const {JT_SECRET} = require("../keys");
-const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const jwtSecret = 'VerySecretString123$'
 const User = require("../models/user")
-module.exports = function(req,res,next){
 
-    const {authorization} = req.headers;
-    if(!authorization){
-        res.status(401).json({"error":"you must be logged in"});
-    }
-    // authorization will be like authorization === Bearer djkfakhkkjfhg
-    const token = authorization.replace("Bearer ","")
-    jt.verify(token,(err,payload)=>{
-        if(err){
-           return res.status(401).json({"error":"you must be logged in"})
+module.exports = async (req, res, next) => {
+    const authorizationHeader = req.headers['authorization'];
+
+    // console.log('authorizationHeader', req.headers);
+    // let token;
+    // if (authorizationHeader)
+    //     token = authorizationHeader.split(' ')[1];
+
+    if (authorizationHeader) {
+        try {
+            const decoded = await jwt.verify(authorizationHeader, jwtSecret);
+            console.log('success', decoded);
+            const user = await User.findOne({ _id: decoded.userId });
+            if (user) {
+                if(decoded.userrole_id == 1){
+                    req.user = user;
+                    next();
+                }
+                throw 'permission error';
+            } else {
+                throw 'No such user';
+            }
+        } catch (error) {
+            res.status(401).json({
+                error: `You don't have permission`,
+                error_type: 'not_authenticated'
+            })
         }
-        const {_id} = payload; 
-        User.findById(_id).then(userData=>{
-            req.user = userData;
-            next();
+    } else {
+        res.status(403).json({
+            error: 'No token provided',
+            error_type: 'no_token'
         })
-    })
-
+    }
 }

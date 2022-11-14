@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const mongoose = require('mongoose');
 const { restart } = require('nodemon');
+
+const jwtSecret = 'VerySecretString123$'
 const jwt = require('jsonwebtoken');
-const login = require('../middleware/login')
-const User = require("../models/user")
-const UserRole = require("../models/userrole")
-const validateRegister = require('../validation/validateRegister');
-const validateLogin = require('../validation/validateLogin');
+const login = require('../../middleware/login')
+const User = require("../../models/user")
+const UserRole = require("../../models/userrole")
+const validateRegister = require('../../validation/validateRegister');
+const validateLogin = require('../../validation/validateLogin');
 
 router.get('/', async (req, res) => {
     User.find(function (err, users) {
@@ -50,7 +51,7 @@ router.post('/login', async (req, res) => {
                         role_id: user.userrole_id,
                         balance: user.balance,
                     },
-                    user.name,
+                    jwtSecret,
                     {
                         expiresIn: '3h'
                     }
@@ -74,7 +75,7 @@ router.post('/register', async (req, res) => {
     if (!isValid) {
         return res.status(400).json(errors);
     }
-
+    login();
     try {
         const user = await User.find({ email: req.body.email }).exec();
         if (user.length > 0) {
