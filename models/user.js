@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
-
 const { Schema } = mongoose;
-// const UserRole = require("../models/userrole")
 const UserSchema = new Schema({
     _id:{
         type: Schema.Types.ObjectId,
@@ -22,12 +20,11 @@ const UserSchema = new Schema({
     password: {
         type: String,
         required: true,
-        default: 'user'
     },
-    userrole_id: {
-        type: Number,
+    userrole: {
+        type: String,
         required: true,
-        // ref: UserRole
+        default: 'user'
     },
     balance: {
         type: Number,

@@ -3,20 +3,18 @@ const jwtSecret = 'VerySecretString123$'
 const User = require("../models/user")
 
 module.exports = async (req, res, next) => {
-    const authorizationHeader = req.headers['authorization'];
-
-    // console.log('authorizationHeader', req.headers);
-    // let token;
-    // if (authorizationHeader)
-    //     token = authorizationHeader.split(' ')[1];
-
+    let authorizationHeader = null
+    if (req) {
+        console.log('req', req.headers['authorization']);
+        authorizationHeader = req.headers['authorization'];
+    }
     if (authorizationHeader) {
         try {
             const decoded = await jwt.verify(authorizationHeader, jwtSecret);
             console.log('success', decoded);
             const user = await User.findOne({ _id: decoded.userId });
             if (user) {
-                if(decoded.userrole_id == 1){
+                if(decoded.userrole === 'admin'){
                     req.user = user;
                     next();
                 }
@@ -25,13 +23,14 @@ module.exports = async (req, res, next) => {
                 throw 'No such user';
             }
         } catch (error) {
-            res.status(401).json({
+            res.json({
                 error: `You don't have permission`,
                 error_type: 'not_authenticated'
             })
         }
     } else {
-        res.status(403).json({
+        console.log('notoken');
+        res.json({
             error: 'No token provided',
             error_type: 'no_token'
         })

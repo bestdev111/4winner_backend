@@ -7,14 +7,12 @@ const jwtSecret = 'VerySecretString123$'
 const jwt = require('jsonwebtoken');
 const login = require('../../middleware/login')
 const User = require("../../models/user")
-const UserRole = require("../../models/userrole")
 const validateRegister = require('../../validation/validateRegister');
 const validateLogin = require('../../validation/validateLogin');
 
 router.get('/', async (req, res) => {
     User.find(function (err, users) {
         if (err) {
-            console.log(err);
         } else {
             res.status(200).json(users);
         }
@@ -48,7 +46,7 @@ router.post('/login', async (req, res) => {
                         userId: user._id,
                         createdAt: user.createdAt,
                         name: user.name,
-                        role_id: user.userrole_id,
+                        role: user.userrole,
                         balance: user.balance,
                     },
                     jwtSecret,
@@ -75,63 +73,33 @@ router.post('/register', async (req, res) => {
     if (!isValid) {
         return res.status(400).json(errors);
     }
-    login();
+    login(req, res);
     try {
-        const user = await User.find({ email: req.body.email }).exec();
+        const user = await User.find({ name: req.body.name }).exec();
         if (user.length > 0) {
-            return res.status(409).json({ error: 'Email already exists.' });
+            return res.status(409).json({ error: 'Name already exists.' });
         }
         return bcrypt.hash(req.body.password, 10, (error, hash) => {
             if (error) {
-                console.log('pass');
                 return res.status(500).json({ error });
             }
-            console.log('data', req.data, hash);
             const newUser = new User({
                 email: req.body.email,
                 name: req.body.name,
                 password: hash,
-                userrole_id: req.body.userrole_id,
+                userrole: req.body.userrole,
                 balance: req.body.balance,
                 createdAt: new Date().getTime(),
             });
-            console.log('newUser', newUser);
             return newUser
                 .save()
                 .then((result) => {
-                    console.log('success');
                     res.status(200).json({ result });
                 })
                 .catch((err) => {
-                    console.log('fail');
                     res.status(500).json({ error: err });
                 });
         });
-    } catch (err) {
-        return res.status(500).json({ err });
-    }
-});
-router.post('/add-role', login, async (req, res) => {
-    try {
-        const userrole = await UserRole.find({ roleName: req.body.roleName }).exec();
-        if (userrole.length > 0) {
-            return res.status(409).json({ error: 'Role already exists.' });
-        }
-        const newRole = new UserRole({
-            id: req.body.id,
-            roleName: req.body.roleName,
-            order: req.body.order,
-        });
-        return newRole
-            .save()
-            .then((result) => {
-                console.log('success');
-                res.status(200).json({ result });
-            })
-            .catch((err) => {
-                console.log('fail');
-                res.status(500).json({ error: err });
-            });
     } catch (err) {
         return res.status(500).json({ err });
     }
