@@ -20,6 +20,11 @@ const UserSchema = new Schema({
         required: true,
         default: 'user'
     },
+    lang: {
+        type: String,
+        required: true,
+        default: 'en_US'
+    },
     balance: {
         type: Number,
         required: true,

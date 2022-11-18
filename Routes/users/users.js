@@ -47,6 +47,7 @@ router.post('/login', async (req, res) => {
                         createdAt: user.createdAt,
                         name: user.name,
                         role: user.userrole,
+                        lang: user.lang,
                         balance: user.balance,
                     },
                     jwtSecret,

@@ -34,5 +34,6 @@ module.exports = async (req, res, next) => {
             error: 'No token provided',
             error_type: 'no_token'
         })
+        return
     }
 }
