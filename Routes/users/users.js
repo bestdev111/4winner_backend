@@ -84,7 +84,6 @@ router.post('/register', async (req, res) => {
                 return res.status(500).json({ error });
             }
             const newUser = new User({
-                email: req.body.email,
                 name: req.body.name,
                 password: hash,
                 userrole: req.body.userrole,

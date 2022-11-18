@@ -20,14 +20,6 @@ const validateRegister = (data) => {
     errors.name = 'Name field is required';
   }
 
-  if (!validator.isEmail(data.email)) {
-    errors.email = 'Email is invalid';
-  }
-
-  if (validator.isEmpty(data.email)) {
-    errors.email = 'Email is required';
-  }
-
   if (!validator.isLength(data.password, { min: 6, max: 30 })) {
     errors.password = 'Password must have between 6 and 30 chars';
   }
