@@ -21,11 +21,9 @@ router.get('/', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     const { errors, isValid } = validateLogin(req.body);
-
     if (!isValid) {
         return res.status(400).json(errors);
     }
-
     try {
         const user = await User.findOne({ name: req.body.name }).exec();
         if (!user) {
@@ -33,7 +31,6 @@ router.post('/login', async (req, res) => {
                 name: 'Could not find user.'
             });
         }
-
         return bcrypt.compare(req.body.password, user.password, (err, result) => {
             if (err) {
                 return res.status(401).json({
@@ -76,7 +73,6 @@ router.post('/update', async (req, res) => {
             {new: true, upsert: true, returnOriginal: false},
         );
         if (!user) {
-            console.log('user not found');
             return res.status(404).json({ message: 'User not found.' });
         }
         const token = jwt.sign(

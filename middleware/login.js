@@ -5,13 +5,11 @@ const User = require("../models/user")
 module.exports = async (req, res, next) => {
     let authorizationHeader = null
     if (req) {
-        console.log('req', req.headers['authorization']);
         authorizationHeader = req.headers['authorization'];
     }
     if (authorizationHeader) {
         try {
             const decoded = await jwt.verify(authorizationHeader, jwtSecret);
-            console.log('success', decoded);
             const user = await User.findOne({ _id: decoded.userId });
             if (user) {
                 if(decoded.userrole === 'admin'){
@@ -29,7 +27,6 @@ module.exports = async (req, res, next) => {
             })
         }
     } else {
-        console.log('notoken');
         res.json({
             error: 'No token provided',
             error_type: 'no_token'
