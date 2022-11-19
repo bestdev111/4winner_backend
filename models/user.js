@@ -23,7 +23,7 @@ const UserSchema = new Schema({
     lang: {
         type: String,
         required: true,
-        default: 'en_US'
+        default: 1
     },
     balance: {
         type: Number,

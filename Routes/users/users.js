@@ -68,6 +68,34 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ message: err });
     }
 });
+router.post('/update', async (req, res) => {
+    try {
+        const user = await User.findOneAndUpdate(
+            { _id: req.body.userId },
+            { lang: req.body.lang },
+            {new: true, upsert: true, returnOriginal: false},
+        );
+        if (!user) {
+            console.log('user not found');
+            return res.status(404).json({ message: 'User not found.' });
+        }
+        const token = jwt.sign(
+            {
+                userId: user._id,
+                createdAt: user.createdAt,
+                name: user.name,
+                role: user.userrole,
+                lang: user.lang,
+                balance: user.balance,
+            },
+            jwtSecret,
+            { expiresIn: '3h' }
+        );
+        return res.json({ user, token });
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+});
 router.post('/register', async (req, res) => {
     const { errors, isValid } = validateRegister(req.body);
 
