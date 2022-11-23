@@ -17,7 +17,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true }
 setInterval(() => {
 // getMatches();
 // getAllMatches();
-}, 10000);
+}, 30000);
 
 // using middlewares
 app.use(bodyParser.json());
