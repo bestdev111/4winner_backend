@@ -65,34 +65,8 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ message: err });
     }
 });
-router.post('/update', async (req, res) => {
-    try {
-        const user = await User.findOneAndUpdate(
-            { _id: req.body.userId },
-            { lang: req.body.lang },
-            {new: true, upsert: true, returnOriginal: false},
-        );
-        if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
-        const token = jwt.sign(
-            {
-                userId: user._id,
-                createdAt: user.createdAt,
-                name: user.name,
-                role: user.userrole,
-                lang: user.lang,
-                balance: user.balance,
-            },
-            jwtSecret,
-            { expiresIn: '3h' }
-        );
-        return res.json({ user, token });
-    } catch (err) {
-        return res.status(500).json({ message: err });
-    }
-});
 router.post('/register', async (req, res) => {
+    console.log('register');
     const { errors, isValid } = validateRegister(req.body);
 
     if (!isValid) {
@@ -126,6 +100,60 @@ router.post('/register', async (req, res) => {
         });
     } catch (err) {
         return res.status(500).json({ err });
+    }
+});
+router.post('/update', async (req, res) => {
+    try {
+        const user = await User.findOneAndUpdate(
+            { _id: req.body.userId },
+            { lang: req.body.lang },
+            { new: true, upsert: true, returnOriginal: false },
+        );
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+        const token = jwt.sign(
+            {
+                userId: user._id,
+                createdAt: user.createdAt,
+                name: user.name,
+                role: user.userrole,
+                lang: user.lang,
+                balance: user.balance,
+            },
+            jwtSecret,
+            { expiresIn: '3h' }
+        );
+        return res.json({ user, token });
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+});
+router.post('/updateuser', async (req, res) => {
+    try {
+        const user = await User.findOneAndUpdate(
+            { _id: req.body._id },
+            {
+                name: req.body.name,
+                userrole: req.body.userrole,
+                balance: req.body.balance,
+            },
+            { new: false, upsert: true, returnOriginal: false },
+        );
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+});
+router.post('/deleteuser', async (req, res) => {
+    try {
+        await User.remove({ name: req.body.name }).exec();
+        res.status(200).json({ message: 'Successfully deleted user.' });
+    } catch (err) {
+        res.status(500).json({ message: err });
     }
 });
 
