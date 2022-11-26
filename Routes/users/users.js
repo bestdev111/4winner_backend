@@ -5,7 +5,7 @@ const { restart } = require('nodemon');
 
 const jwtSecret = 'VerySecretString123$'
 const jwt = require('jsonwebtoken');
-const login = require('../../middleware/login')
+const logged = require('../../middleware/login')
 const User = require("../../models/user")
 const validateRegister = require('../../validation/validateRegister');
 const validateLogin = require('../../validation/validateLogin');
@@ -14,9 +14,24 @@ router.get('/', async (req, res) => {
     User.find(function (err, users) {
         if (err) {
         } else {
-            res.status(200).json(users);
+            let arr = new Array();
+            let index = 1;
+            for (const item of users) {
+                let obj = new Object();
+                obj = {
+                    id : index,
+                    _id: item._id,
+                    name: item.name,
+                    role: item.userrole,
+                    lang: item.lang,
+                    balance: item.balance
+                }
+                arr.push(obj)
+                index++
+            }
+            res.status(200).json(arr);
         }
-    });
+    })
 });
 
 router.post('/login', async (req, res) => {
@@ -66,13 +81,12 @@ router.post('/login', async (req, res) => {
     }
 });
 router.post('/register', async (req, res) => {
-    console.log('register');
     const { errors, isValid } = validateRegister(req.body);
 
     if (!isValid) {
         return res.status(400).json(errors);
     }
-    login(req, res);
+    await logged(req, res);
     try {
         const user = await User.find({ name: req.body.name }).exec();
         if (user.length > 0) {
@@ -85,8 +99,6 @@ router.post('/register', async (req, res) => {
             const newUser = new User({
                 name: req.body.name,
                 password: hash,
-                userrole: req.body.userrole,
-                balance: req.body.balance,
                 createdAt: new Date().getTime(),
             });
             return newUser
@@ -130,13 +142,14 @@ router.post('/update', async (req, res) => {
     }
 });
 router.post('/updateuser', async (req, res) => {
+    await logged(req, res);
     try {
         const user = await User.findOneAndUpdate(
             { _id: req.body._id },
             {
                 name: req.body.name,
-                userrole: req.body.userrole,
-                balance: req.body.balance,
+                // userrole: req.body.userrole,
+                // balance: req.body.balance,
             },
             { new: false, upsert: true, returnOriginal: false },
         );
@@ -149,10 +162,18 @@ router.post('/updateuser', async (req, res) => {
     }
 });
 router.post('/deleteuser', async (req, res) => {
-    try {
-        await User.remove({ name: req.body.name }).exec();
-        res.status(200).json({ message: 'Successfully deleted user.' });
-    } catch (err) {
+    logged(req, res);
+    console.log('logged', logged);
+
+    if (logged) {
+        try {
+            await User.deleteOne({ name: req.body.name }).exec();
+            res.status(200).json({ message: 'Successfully deleted user.' });
+        } catch (err) {
+            res.status(500).json({ message: err });
+        }
+    }
+    else {
         res.status(500).json({ message: err });
     }
 });

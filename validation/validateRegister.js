@@ -6,7 +6,6 @@ const validateRegister = (data) => {
   const errors = {};
 
   data.name = !isEmpty(data.name) ? data.name : '';
-  data.email = !isEmpty(data.email) ? data.email : '';
   data.password = !isEmpty(data.password) ? data.password : '';
   data.passwordConfirm = !isEmpty(data.passwordConfirm)
     ? data.passwordConfirm

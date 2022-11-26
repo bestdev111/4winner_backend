@@ -27,10 +27,9 @@ module.exports = async (req, res, next) => {
             })
         }
     } else {
-        res.json({
+        return res.status(500).json({
             error: 'No token provided',
             error_type: 'no_token'
         })
-        return
     }
 }
