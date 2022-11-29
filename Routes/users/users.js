@@ -3,37 +3,77 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { restart } = require('nodemon');
 
-const jwtSecret = 'VerySecretString123$'
 const jwt = require('jsonwebtoken');
 const logged = require('../../middleware/login')
 const User = require("../../models/user")
+const Role = require("../../models/role")
 const validateRegister = require('../../validation/validateRegister');
 const validateLogin = require('../../validation/validateLogin');
-
+const dotenv = require('dotenv').config();
 router.get('/', async (req, res) => {
-    User.find(function (err, users) {
-        if (err) {
-        } else {
+    const userInfo = req.query;
+    await User.find(function (err, users) {
+        if (!err) {
             let arr = new Array();
             let index = 1;
-            for (const item of users) {
+            for (const user of users) {
                 let obj = new Object();
-                obj = {
-                    id : index,
-                    _id: item._id,
-                    name: item.name,
-                    role: item.userrole,
-                    lang: item.lang,
-                    balance: item.balance
+                if(userInfo.role === 'admin') {
+                    obj = {
+                        id: index,
+                        _id: user._id,
+                        name: user.name,
+                        role: user.userrole,
+                        lang: user.lang,
+                        balance: user.balance
+                    }
+                    arr.push(obj)
+                    index++
                 }
-                arr.push(obj)
-                index++
+                if (userInfo.role === 'agent' && user.userrole === 'distributor') {
+                    obj = {
+                        id: index,
+                        _id: user._id,
+                        name: user.name,
+                        role: user.userrole,
+                        lang: user.lang,
+                        balance: user.balance
+                    }
+                    arr.push(obj)
+                    index++
+                }
+                if (userInfo.role === 'distributor' && user.userrole === 'cashier') {
+                    obj = {
+                        id: index,
+                        _id: user._id,
+                        name: user.name,
+                        role: user.userrole,
+                        lang: user.lang,
+                        balance: user.balance
+                    }
+                    arr.push(obj)
+                    index++
+                }
+                if (userInfo.role === 'cashier' && user.userrole === 'user') {
+                    obj = {
+                        id: index,
+                        _id: user._id,
+                        name: user.name,
+                        role: user.userrole,
+                        lang: user.lang,
+                        balance: user.balance
+                    }
+                    arr.push(obj)
+                    index++
+                }
             }
-            res.status(200).json(arr);
+            return res.status(200).json(arr);
+        } else {
+            res.sendStatus(500);
+            return;
         }
-    })
+    }).clone().catch(function (err) { console.log(err) })
 });
-
 router.post('/login', async (req, res) => {
     const { errors, isValid } = validateLogin(req.body);
     if (!isValid) {
@@ -62,7 +102,7 @@ router.post('/login', async (req, res) => {
                         lang: user.lang,
                         balance: user.balance,
                     },
-                    jwtSecret,
+                    dotenv.parsed.SECRET_KEY,
                     {
                         expiresIn: '3h'
                     }
@@ -80,13 +120,13 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ message: err });
     }
 });
-router.post('/register', async (req, res) => {
+router.post('/register', logged, async (req, res) => {
     const { errors, isValid } = validateRegister(req.body);
 
     if (!isValid) {
         return res.status(400).json(errors);
     }
-    await logged(req, res);
+    // logged(req, res);
     try {
         const user = await User.find({ name: req.body.name }).exec();
         if (user.length > 0) {
@@ -104,10 +144,10 @@ router.post('/register', async (req, res) => {
             return newUser
                 .save()
                 .then((result) => {
-                    res.status(200).json({ result });
+                    return res.status(200).json({ result });
                 })
                 .catch((err) => {
-                    res.status(500).json({ error: err });
+                    return res.status(500).json({ error: err });
                 });
         });
     } catch (err) {
@@ -133,7 +173,7 @@ router.post('/update', async (req, res) => {
                 lang: user.lang,
                 balance: user.balance,
             },
-            jwtSecret,
+            dotenv.parsed.SECRET_KEY,
             { expiresIn: '3h' }
         );
         return res.json({ user, token });
@@ -142,14 +182,13 @@ router.post('/update', async (req, res) => {
     }
 });
 router.post('/updateuser', async (req, res) => {
-    await logged(req, res);
+    // logged(req, res);
     try {
         const user = await User.findOneAndUpdate(
             { _id: req.body._id },
             {
                 name: req.body.name,
-                // userrole: req.body.userrole,
-                // balance: req.body.balance,
+                userrole: req.body.role,
             },
             { new: false, upsert: true, returnOriginal: false },
         );
@@ -162,20 +201,12 @@ router.post('/updateuser', async (req, res) => {
     }
 });
 router.post('/deleteuser', async (req, res) => {
-    logged(req, res);
-    console.log('logged', logged);
-
-    if (logged) {
-        try {
-            await User.deleteOne({ name: req.body.name }).exec();
-            res.status(200).json({ message: 'Successfully deleted user.' });
-        } catch (err) {
-            res.status(500).json({ message: err });
-        }
-    }
-    else {
-        res.status(500).json({ message: err });
+    try {
+        console.log('name:', req.body.name);
+        await User.deleteOne({ name: req.body.name }).exec();
+        return res.status(200).json({ message: 'Successfully deleted user.' });
+    } catch (err) {
+        return res.status(500).json({ message: err });
     }
 });
-
 module.exports = router
