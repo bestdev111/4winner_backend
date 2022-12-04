@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
             let index = 1;
             for (const user of users) {
                 let obj = new Object();
-                if(userInfo.role === 'admin') {
+                if (userInfo.role === 'admin') {
                     obj = {
                         id: index,
                         _id: user._id,
@@ -126,7 +126,6 @@ router.post('/register', logged, async (req, res) => {
     if (!isValid) {
         return res.status(400).json(errors);
     }
-    // logged(req, res);
     try {
         const user = await User.find({ name: req.body.name }).exec();
         if (user.length > 0) {
@@ -138,6 +137,7 @@ router.post('/register', logged, async (req, res) => {
             }
             const newUser = new User({
                 name: req.body.name,
+                userrole: req.body.role,
                 password: hash,
                 createdAt: new Date().getTime(),
             });
@@ -181,8 +181,7 @@ router.post('/update', async (req, res) => {
         return res.status(500).json({ message: err });
     }
 });
-router.post('/updateuser', async (req, res) => {
-    // logged(req, res);
+router.post('/updateuser', logged, async (req, res) => {
     try {
         const user = await User.findOneAndUpdate(
             { _id: req.body._id },
@@ -200,7 +199,7 @@ router.post('/updateuser', async (req, res) => {
         return res.status(500).json({ message: err });
     }
 });
-router.post('/deleteuser', async (req, res) => {
+router.post('/deleteuser', logged, async (req, res) => {
     try {
         console.log('name:', req.body.name);
         await User.deleteOne({ name: req.body.name }).exec();
