@@ -24,6 +24,10 @@ setInterval(() => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json())
+app.use(express.static(__dirname));
+app.get('/*', function(){
+    res.sendFile(path.join(__dirname, 'index.html'))
+});
 app.use('/user', user);
 app.use('/admin', adminUser);
 app.use('/sports', sports);
