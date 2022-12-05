@@ -10,6 +10,7 @@ const Role = require("../../models/role")
 const validateRegister = require('../../validation/validateRegister');
 const validateLogin = require('../../validation/validateLogin');
 const dotenv = require('dotenv').config();
+console.log('dotenv', dotenv);
 router.get('/', async (req, res) => {
     const userInfo = req.query;
     await User.find(function (err, users) {

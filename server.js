@@ -1,32 +1,36 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const path = require('path')
-require('dotenv').config();
+const dotenv = require('dotenv').config();
 const app = express();
+// cors prevent
 const cors = require("cors");
 app.use(cors());
-const mongoose = require('mongoose')
-const getMatches = require("./scrapers/getMatches");
-const getAllMatches = require("./scrapers/getAllMatches");
+
 const user = require('./routes/users/users');
 const adminUser = require('./routes/admin/users');
 const sports = require('./routes/sports');
+const getMatches = require("./scrapers/getMatches");
+const getAllMatches = require("./scrapers/getAllMatches");
 
+//db connect
+const mongoose = require('mongoose')
 mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.log('Failed to connect to MongoDB', err));
-    
+
 setInterval(() => {
-// getMatches();
-// getAllMatches();
+    // getMatches();
+    // getAllMatches();
 }, 30000);
 
 // production case
-app.use(express.static(__dirname));
-app.get('/*', function (req, res){
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'))
-});
-
+if (dotenv.parsed.NODE_ENV === 'production') {
+    app.use(express.static(__dirname));
+    app.get('/*', function (req, res) {
+        res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'))
+    });
+}
 // using middlewares
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
