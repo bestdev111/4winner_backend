@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const express = require('express');
+const path = require('path')
 require('dotenv').config();
 const app = express();
 const cors = require("cors");
@@ -20,10 +21,12 @@ setInterval(() => {
 // getAllMatches();
 }, 30000);
 
+// production case
 app.use(express.static(__dirname));
-app.get('/*', function(){
-    res.sendFile(path.join(__dirname, 'index.html'))
+app.get('/*', function (req, res){
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'))
 });
+
 // using middlewares
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
