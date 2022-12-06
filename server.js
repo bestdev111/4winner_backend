@@ -33,7 +33,7 @@ app.use('/admin', adminUser);
 app.use('/sports', sports);
 
 // listenig to port
-const port = 80
+const port = 5000
 app.listen(port, () => {
     console.log('server is running on: ' + port);
 })
