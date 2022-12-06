@@ -24,13 +24,6 @@ setInterval(() => {
     // getAllMatches();
 }, 30000);
 
-// production case
-if (dotenv.parsed.NODE_ENV === 'production') {
-    app.use(express.static(__dirname));
-    app.get('/*', function (req, res) {
-        res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'))
-    });
-}
 // using middlewares
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
