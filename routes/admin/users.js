@@ -120,7 +120,7 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ message: err });
     }
 });
-router.post('/register', logged, async (req, res) => {
+router.post('/register', async (req, res) => {
     const { errors, isValid } = validateRegister(req.body);
 
     if (!isValid) {
