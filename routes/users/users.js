@@ -65,22 +65,20 @@ router.post('/changepass', logged, async (req, res) => {
     if (!isValid) {
         return res.status(400).json(errors);
     }
-    console.log('success');
     try {
         const user = await User.findOne({ name: req.body.name }).exec();
-        return bcrypt.compare(req.body.currentPass, user.password, (err, result) => {
+        return await bcrypt.compare(req.body.currentPass, user.password, (err, result) => {
             if (err) {
                 return res.status(401).json({
                     message: 'Wrong password. Try again.'
                 });
             }
             if (result) {
-                bcrypt.hash(req.body.newPass, 10, (error, hash) => {
+                bcrypt.hash(req.body.newPass, 10, async (error, hash) => {
                     if (error) {
                         return res.status(500).json({ error });
                     }
-                    console.log('hash::', user.name, hash);
-                    const newPass = User.findOneAndUpdate(
+                    const newPass = await User.findOneAndUpdate(
                         { name: req.body.name },
                         { password: hash },
                         { new: true, upsert: true, returnOriginal: false },
@@ -88,7 +86,7 @@ router.post('/changepass', logged, async (req, res) => {
                     if (!newPass) {
                         return res.status(404).json({ message: 'Password change error.' });
                     }
-                    return res.status(200).json({ message: 'success'});
+                    return res.status(200).json({ message: 'success' });
                 });
             }
         });
