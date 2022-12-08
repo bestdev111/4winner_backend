@@ -21,20 +21,20 @@ router.get('/getAllMatches', async (req, res) => {
     }
 });
 router.get('/getMatches', async (req, res) => {
-    console.log("getMatches")
+    // console.log("getMatches")
     try {
         await fs.readFile(`${dataDir}getMatches.json`, 'utf8', (err, stringData) => {
             if (err) {
-                console.log(err)
+                // console.log(err)
                 res.status(500).json({ err });
                 return;
             }
             const data = JSON.parse(stringData);
-            console.log(data, "data")
+            // console.log(data, "data")
             res.status(200).json({ data });
         });
     } catch (err) {
-        console.log(555, err)
+        // console.log(555, err)
         res.status(500).json({ err });
     }
 });

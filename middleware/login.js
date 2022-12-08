@@ -9,7 +9,7 @@ module.exports = async (req, res, next) => {
     if (authorizationHeader) {
         try {
             const decoded = await jwt.verify(authorizationHeader, dotenv.parsed.SECRET_KEY);
-            const user = await User.findOne({ _id: decoded.userId });
+            const user = await User.findOne({ name: decoded.name });
             if (user) {
                 req.user = user;
                 next();
