@@ -1,16 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const { restart } = require('nodemon');
+const bcrypt = require("bcrypt");
+const { restart } = require("nodemon");
 
-const jwt = require('jsonwebtoken');
-const logged = require('../../middleware/login')
-const User = require("../../models/user")
-const Role = require("../../models/role")
-const validateRegister = require('../../validation/validateRegister');
-const validateLogin = require('../../validation/validateLogin');
-const dotenv = require('dotenv').config();
-router.get('/', async (req, res) => {
+const jwt = require("jsonwebtoken");
+const logged = require("../../middleware/login");
+const User = require("../../models/user");
+const Role = require("../../models/role");
+const validateRegister = require("../../validation/validateRegister");
+const validateLogin = require("../../validation/validateLogin");
+const dotenv = require("dotenv").config();
+router.get("/", async (req, res) => {
     const userInfo = req.query;
     await User.find(function (err, users) {
         if (!err) {
@@ -18,53 +18,59 @@ router.get('/', async (req, res) => {
             let index = 1;
             for (const user of users) {
                 let obj = new Object();
-                if (userInfo.role === 'admin') {
+                if (userInfo.role === "admin") {
                     obj = {
                         id: index,
                         _id: user._id,
                         name: user.name,
                         role: user.userrole,
                         lang: user.lang,
-                        balance: user.balance
-                    }
-                    arr.push(obj)
-                    index++
+                        balance: user.balance,
+                    };
+                    arr.push(obj);
+                    index++;
                 }
-                if (userInfo.role === 'agent' && user.userrole === 'distributor') {
+                if (
+                    userInfo.role === "agent" &&
+                    user.userrole === "distributor"
+                ) {
                     obj = {
                         id: index,
                         _id: user._id,
                         name: user.name,
                         role: user.userrole,
                         lang: user.lang,
-                        balance: user.balance
-                    }
-                    arr.push(obj)
-                    index++
+                        balance: user.balance,
+                    };
+                    arr.push(obj);
+                    index++;
                 }
-                if (userInfo.role === 'distributor' && user.userrole === 'cashier') {
+                if (
+                    userInfo.role === "distributor" &&
+                    user.userrole === "cashier"
+                ) {
                     obj = {
                         id: index,
                         _id: user._id,
                         name: user.name,
                         role: user.userrole,
                         lang: user.lang,
-                        balance: user.balance
-                    }
-                    arr.push(obj)
-                    index++
+                        balance: user.balance,
+                    };
+                    arr.push(obj);
+                    index++;
                 }
-                if (userInfo.role === 'cashier' && user.userrole === 'user') {
+                if (userInfo.role === "cashier" && user.userrole === "user") {
                     obj = {
                         id: index,
                         _id: user._id,
                         name: user.name,
                         role: user.userrole,
                         lang: user.lang,
-                        balance: user.balance
-                    }
-                    arr.push(obj)
-                    index++
+                        balance: user.balance,
+                    };
+                    arr.push(obj);
+                    index++;
                 }
             }
             return res.status(200).json(arr);
@@ -72,9 +78,13 @@ router.get('/', async (req, res) => {
             res.sendStatus(500);
             return;
         }
-    }).clone().catch(function (err) { console.log(err) })
+    })
+        .clone()
+        .catch(function (err) {
+            console.log(err);
+        });
 });
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
     const { errors, isValid } = validateLogin(req.body);
     if (!isValid) {
         return res.status(400).json(errors);
@@ -83,44 +93,48 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({ name: req.body.name }).exec();
         if (!user) {
             return res.status(401).json({
-                name: 'Could not find user.'
+                name: "Could not find user.",
             });
         }
-        return bcrypt.compare(req.body.password, user.password, (err, result) => {
-            if (err) {
+        return bcrypt.compare(
+            req.body.password,
+            user.password,
+            (err, result) => {
+                if (err) {
+                    return res.status(401).json({
+                        message: "Auth failed.",
+                    });
+                }
+                if (result) {
+                    const token = jwt.sign(
+                        {
+                            userId: user._id,
+                            createdAt: user.createdAt,
+                            name: user.name,
+                            role: user.userrole,
+                            lang: user.lang,
+                            balance: user.balance,
+                        },
+                        dotenv.parsed.SECRET_KEY,
+                        {
+                            expiresIn: "3h",
+                        }
+                    );
+                    return res.status(200).json({
+                        message: "Auth successful.",
+                        token,
+                    });
+                }
                 return res.status(401).json({
-                    message: 'Auth failed.'
+                    password: "Wrong password. Try again.",
                 });
             }
-            if (result) {
-                const token = jwt.sign(
-                    {
-                        userId: user._id,
-                        createdAt: user.createdAt,
-                        name: user.name,
-                        role: user.userrole,
-                        lang: user.lang,
-                        balance: user.balance,
-                    },
-                    dotenv.parsed.SECRET_KEY,
-                    {
-                        expiresIn: '3h'
-                    }
-                );
-                return res.status(200).json({
-                    message: 'Auth successful.',
-                    token
-                });
-            }
-            return res.status(401).json({
-                password: 'Wrong password. Try again.'
-            });
-        });
+        );
     } catch (err) {
         return res.status(500).json({ message: err });
     }
 });
-router.post('/register', logged, async (req, res) => {
+router.post("/register", logged, async (req, res) => {
     const { errors, isValid } = validateRegister(req.body);
 
     if (!isValid) {
@@ -129,7 +143,7 @@ router.post('/register', logged, async (req, res) => {
     try {
         const user = await User.find({ name: req.body.name }).exec();
         if (user.length > 0) {
-            return res.status(409).json({ error: 'Name already exists.' });
+            return res.status(409).json({ error: "Name already exists." });
         }
         return bcrypt.hash(req.body.password, 10, (error, hash) => {
             if (error) {
@@ -154,15 +168,15 @@ router.post('/register', logged, async (req, res) => {
         return res.status(500).json({ err });
     }
 });
-router.post('/update', async (req, res) => {
+router.post("/update", async (req, res) => {
     try {
         const user = await User.findOneAndUpdate(
             { _id: req.body.userId },
             { lang: req.body.lang },
-            { new: true, upsert: true, returnOriginal: false },
+            { new: true, upsert: true, returnOriginal: false }
         );
         if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
+            return res.status(404).json({ message: "User not found." });
         }
         const token = jwt.sign(
             {
@@ -174,14 +188,43 @@ router.post('/update', async (req, res) => {
                 balance: user.balance,
             },
             dotenv.parsed.SECRET_KEY,
-            { expiresIn: '3h' }
+            { expiresIn: "3h" }
         );
         return res.json({ user, token });
     } catch (err) {
         return res.status(500).json({ message: err });
     }
 });
-router.post('/updateuser', logged, async (req, res) => {
+router.post("/reset-pass", logged, async (req, res) => {
+    if (bcrypt.compare(req.body.old, req.user.password)) {
+        try {
+            console.log(
+                "🚀 ~ file: users.js:204 ~ router.post ~ req.user._id",
+                req.user.name
+            );
+            const hash = bcrypt.hash(req.body.new, 10);
+            const user = await User.findOneAndUpdate(
+                { name: req.user.name },
+                { password: hash },
+                { new: true }
+            );
+            console.log("🚀 ~ file: users.js:207 ~ router.post ~ user", user);
+            if (!user) {
+                return res.status(404).json({ message: "User not found." });
+            }
+
+            return res.json({ user });
+        } catch (err) {
+            return res.status(500).json({ message: err });
+        }
+    } else {
+        console.log("Your password is not correct");
+        return res
+            .status(500)
+            .json({ message: "Your password is not correct" });
+    }
+});
+router.post("/updateuser", logged, async (req, res) => {
     try {
         const user = await User.findOneAndUpdate(
             { _id: req.body._id },
@@ -189,23 +232,23 @@ router.post('/updateuser', logged, async (req, res) => {
                 name: req.body.name,
                 userrole: req.body.role,
             },
-            { new: false, upsert: true, returnOriginal: false },
+            { new: false, upsert: true, returnOriginal: false }
         );
         if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
+            return res.status(404).json({ message: "User not found." });
         }
         return res.json({ success: true });
     } catch (err) {
         return res.status(500).json({ message: err });
     }
 });
-router.post('/deleteuser', logged, async (req, res) => {
+router.post("/deleteuser", logged, async (req, res) => {
     try {
-        console.log('name:', req.body.name);
+        console.log("name:", req.body.name);
         await User.deleteOne({ name: req.body.name }).exec();
-        return res.status(200).json({ message: 'Successfully deleted user.' });
+        return res.status(200).json({ message: "Successfully deleted user." });
     } catch (err) {
         return res.status(500).json({ message: err });
     }
 });
-module.exports = router
+module.exports = router;
