@@ -203,11 +203,13 @@ router.post("/reset-pass", logged, async (req, res) => {
                 req.user.name
             );
             const hash = bcrypt.hash(req.body.new, 10);
+            // something wrong with bellow code
             const user = await User.findOneAndUpdate(
                 { name: req.user.name },
                 { password: hash },
                 { new: true }
             );
+            //
             console.log("🚀 ~ file: users.js:207 ~ router.post ~ user", user);
             if (!user) {
                 return res.status(404).json({ message: "User not found." });
