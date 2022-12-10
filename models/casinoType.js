@@ -1,23 +1,18 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const RoleSchema = new Schema({
+const CasinoTypeSchema = new Schema({
     id: {
         type: Number,
         required: true,
         auto: true,
     },
-    role: {
+    name: {
         type: String,
-        required: true,
-        unique: true,
-    },
-    priority: {
-        type: Number,
         required: true,
         unique: true,
     }
 }, {
-    timeseries: true
+    timestamps: true
 });
 
-module.exports = mongoose.model('Role', RoleSchema);
+module.exports = mongoose.model('CasinoType', CasinoTypeSchema);

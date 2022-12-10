@@ -6,19 +6,23 @@ const UserSchema = new Schema({
         required: true,
         auto:true,
     },
-    name: {
+    userName: {
         type: String,
         required: true,
-        unique: true,
+        unique: true
+    },
+    name: {
+        type: String,
+        required: true
     },
     password: {
         type: String,
         required: true,
     },
-    userrole: {
-        type: String,
-        required: true,
-        default: 'user'
+    userRole: {
+        type: Schema.Types.ObjectId,
+        ref : 'Role',
+        required: true
     },
     lang: {
         type: String,
@@ -30,10 +34,48 @@ const UserSchema = new Schema({
         required: true,
         default: 0.00
     },
-    createdAt: {
-        type: Number,
-        required: true
+    parent: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     },
+    active: {
+        type: Boolean,
+        default: true
+    },
+    isCasinoEnabled: {
+        type: Boolean,
+        default: false
+    },
+    casinoType: {
+        type: Schema.Types.ObjectId,
+        ref: 'CasinoType'
+    },
+    allowedSportsType: [{
+            type: Schema.Types.ObjectId,
+            ref: 'SportsType'
+    }],
+    maximumStakeLimit: {
+        type: Number,
+        default: 0
+    },
+    totalOddsLimit: {
+        type: Number,
+        default: 0
+    },
+    turnOver: {
+        type: Number,
+        default: 0
+    },
+    won: {
+        type: Number,
+        default: 0
+    },
+    unsettled: {
+        type: Number,
+        default: 0
+    }
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('User', UserSchema);
