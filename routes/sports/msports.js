@@ -3,7 +3,7 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
-const dataDir = path.join(__dirname, "../data/");
+const dataDir = path.join(__dirname, "../../data/");
 
 router.get('/getAllMatches', async (req, res) => {
     try {

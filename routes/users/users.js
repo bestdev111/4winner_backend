@@ -16,6 +16,7 @@ router.post('/login', async (req, res) => {
     }
     try {
         const user = await User.findOne({ name: req.body.name }).exec();
+        console.log('here',user);
         if (!user) {
             return res.status(401).json({
                 name: 'Could not find user.'
@@ -23,11 +24,12 @@ router.post('/login', async (req, res) => {
         }
         if (user.userrole !== 'user') {
             return res.status(401).json({
-                name: 'Auth failed.'
+                name: 'Permission denied.'
             });
         }
         return bcrypt.compare(req.body.password, user.password, (err, result) => {
             if (err) {
+
                 return res.status(401).json({
                     message: 'Auth failed.'
                 });
