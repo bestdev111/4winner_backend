@@ -141,17 +141,18 @@ router.post("/register", logged, async (req, res) => {
         return res.status(400).json(errors);
     }
     try {
-        const user = await User.find({ name: req.body.name }).exec();
+        const user = await User.find({ userName: req.body.userName }).exec();
         if (user.length > 0) {
-            return res.status(409).json({ error: "Name already exists." });
+            return res.status(409).json({ message: "Name already exists." });
         }
         return bcrypt.hash(req.body.password, 10, (error, hash) => {
             if (error) {
                 return res.status(500).json({ error });
             }
             const newUser = new User({
+                userName: req.body.userName,
                 name: req.body.name,
-                userrole: req.body.role,
+                userRole: req.body.role,
                 password: hash,
                 createdAt: new Date().getTime(),
             });
