@@ -12,9 +12,15 @@ const adminUser = require('./routes/admin/users');
 const adminBalance = require('./routes/admin/balance');
 const adminCustomer = require('./routes/admin/customer');
 const adminSeed = require('./routes/admin/seed');
-const sports = require('./routes/sports');
+const sports = require('./routes/sports/sports');
+const m_sports = require('./routes/sports/msports');
+
 const getMatches = require("./scrapers/getMatches");
 const getAllMatches = require("./scrapers/getAllMatches");
+const m_getMatches = require("./scrapers/m_getMatches");
+const m_getAllMatches = require("./scrapers/m_getAllMatches");
+const m_getTopLeagues = require("./scrapers/m_getTopLeagues");
+const m_getLeagueSorts = require("./scrapers/m_getLeagueSorts");
 
 //db connect
 const mongoose = require('mongoose')
@@ -23,9 +29,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true }
     .catch(err => console.log('Failed to connect to MongoDB', err));
 
 setInterval(() => {
-    // getMatches();
-    // getAllMatches();
-}, 30000);
+    getMatches();
+    getAllMatches();
+    m_getMatches();
+    m_getTopLeagues();
+    m_getAllMatches();
+    m_getLeagueSorts();
+}, 35000);
 
 // using middlewares
 app.use(bodyParser.json());
@@ -37,6 +47,7 @@ app.use('/admin/balance', adminBalance);
 app.use('/admin/customer', adminCustomer);
 app.use('/admin/seed', adminSeed);
 app.use('/sports', sports);
+app.use('/m_sports', m_sports);
 
 // listenig to port
 const port = 5000

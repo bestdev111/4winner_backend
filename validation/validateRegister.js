@@ -6,19 +6,17 @@ const validateRegister = (data, isCreatingCustomer = 0) => {
   const errors = {};
 
   data.name = !isEmpty(data.name) ? data.name : '';
+  data.userName = !isEmpty(data.userName) ? data.userName : '';
   data.password = !isEmpty(data.password) ? data.password : '';
-  data.passwordConfirm = !isEmpty(data.passwordConfirm)
-    ? data.passwordConfirm
-    : '';
+  data.passwordConfirm = !isEmpty(data.passwordConfirm) ? data.passwordConfirm : '';
 
   if (!validator.isLength(data.userName, { min: 2, max: 30 })) {
-    errors.name = 'UserName must be between 2 and 30 chars';
+    errors.name = 'userName must be between 2 and 30 chars';
   }
 
   if (validator.isEmpty(data.userName)) {
-    errors.name = 'UserName field is required';
+    errors.name = 'userName field is required';
   }
-
   if (!validator.isLength(data.name, { min: 2, max: 30 })) {
     errors.name = 'Name must be between 2 and 30 chars';
   }

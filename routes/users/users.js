@@ -3,27 +3,30 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { restart } = require('nodemon');
 
+const dotenv = require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const User = require("../../models/user")
+const logged = require('../../middleware/login')
 const validateLogin = require('../../validation/validateLogin');
 const validatePassChange = require('../../validation/validatePassChange');
-const dotenv = require('dotenv').config();
-const logged = require('../../middleware/login')
+const User = require("../../models/user")
+const Role = require("../../models/role")
 router.post('/login', async (req, res) => {
     const { errors, isValid } = validateLogin(req.body);
     if (!isValid) {
         return res.status(400).json(errors);
     }
     try {
-        const user = await User.findOne({ name: req.body.name }).exec();
+        const user = await User.findOne({ userName: req.body.userName }).exec();
+        // const userRoleId = await Role.findOne({ role: 'user' })
         if (!user) {
             return res.status(401).json({
-                name: 'Could not find user.'
+                message: 'Could not find user.'
             });
         }
-        if (user.userrole !== 'user') {
+        const roleData = await Role.findOne({ _id: user.userRole })
+        if (roleData.role !== 'user') {
             return res.status(401).json({
-                name: 'Auth failed.'
+                message: 'Permission denied.'
             });
         }
         return bcrypt.compare(req.body.password, user.password, (err, result) => {
@@ -35,12 +38,12 @@ router.post('/login', async (req, res) => {
             if (result) {
                 const token = jwt.sign(
                     {
-                        userId: user._id,
-                        createdAt: user.createdAt,
+                        userName: user.userName,
                         name: user.name,
-                        role: user.userrole,
+                        role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
+                        createdAt: user.createdAt,
                     },
                     dotenv.parsed.SECRET_KEY,
                     {
@@ -66,7 +69,7 @@ router.post('/changepass', logged, async (req, res) => {
         return res.status(400).json(errors);
     }
     try {
-        const user = await User.findOne({ name: req.body.name }).exec();
+        const user = await User.findOne({ userName: req.body.userName }).exec();
         return await bcrypt.compare(req.body.currentPass, user.password, (err, result) => {
             if (err) {
                 return res.status(401).json({
@@ -79,7 +82,7 @@ router.post('/changepass', logged, async (req, res) => {
                         return res.status(500).json({ error });
                     }
                     const newPass = await User.findOneAndUpdate(
-                        { name: req.body.name },
+                        { userName: req.body.userName },
                         { password: hash },
                         { new: true, upsert: true, returnOriginal: false },
                     );
@@ -97,7 +100,7 @@ router.post('/changepass', logged, async (req, res) => {
 router.post('/update', async (req, res) => {
     try {
         const user = await User.findOneAndUpdate(
-            { _id: req.body.userId },
+            { userName: req.body.userName },
             { lang: req.body.lang },
             { new: true, upsert: true, returnOriginal: false },
         );
@@ -106,12 +109,12 @@ router.post('/update', async (req, res) => {
         }
         const token = jwt.sign(
             {
-                userId: user._id,
-                createdAt: user.createdAt,
+                userName: user.userName,
                 name: user.name,
-                role: user.userrole,
+                role: user.userRole,
                 lang: user.lang,
                 balance: user.balance,
+                createdAt: user.createdAt,
             },
             dotenv.parsed.SECRET_KEY,
             { expiresIn: '3h' }

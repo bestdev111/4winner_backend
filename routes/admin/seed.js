@@ -37,7 +37,7 @@ router.post('/sporttype', logged, async (req, res) => {
   });
   newSportType.save()
     .then(result => {
-      return res.status(200).json({newSportType});
+      return res.status(200).json({newSportType: newSportType});
     })
     .catch(err => {
       return res.status(500).json({error: err});
@@ -92,7 +92,7 @@ router.post('/casinoType', logged, async (req, res) => {
   });
   newCasinoType.save()
     .then(result => {
-      return res.status(200).json({newCasinoType});
+      return res.status(200).json({newCasinoType: newCasinoType});
     })
     .catch(err => {
       return res.status(500).json({error: err});
@@ -139,7 +139,7 @@ router.post('/role', async (req, res) => {
   });
   newRole.save()
     .then(result => {
-      return res.status(200).json({newRole});
+      return res.status(200).json({newRole: newRole});
     })
     .catch(err => {
       return res.status(500).json({error: err});
@@ -151,8 +151,7 @@ router.delete('/role', async (req, res) => {
 
   // delete that sport type
   Role.deleteOne({
-    role: req.body.role,
-    priority: req.body.priority
+    role: req.body.role
   })
     .then(result => {
       return res.json(200).json(result);

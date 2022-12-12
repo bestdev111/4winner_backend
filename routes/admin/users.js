@@ -147,7 +147,7 @@ router.post("/register", async (req, res) => {
     try {
         const user = await User.find({ userName: req.body.userName }).exec();
         if (user.length > 0) {
-            return res.status(409).json({ error: "Name already exists." });
+            return res.status(409).json({ message: "Name already exists." });
         }
         return bcrypt.hash(req.body.password, 10, async (error, hash) => {
             if (error) {
@@ -155,8 +155,8 @@ router.post("/register", async (req, res) => {
             }
             // find the object id of the requested role to refer
             try {
-                role = await Role.find({role: req.body.userRole}).exec();
-                console.log('fetched ' + req.body.userRole + ' role is ', role[0]._id);
+                role = await Role.find({role: req.body.role}).exec();
+                console.log('fetched ' + req.body.role + ' role is ', role[0]._id);
             } catch (error) {
                 return res.status(500).json({ error: "That role does not exist" });
             }
