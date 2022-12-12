@@ -3,8 +3,7 @@ const { Schema } = mongoose;
 const CasinoTypeSchema = new Schema({
     id: {
         type: Number,
-        required: true,
-        auto: true,
+        auto: true
     },
     name: {
         type: String,

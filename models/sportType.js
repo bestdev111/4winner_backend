@@ -5,7 +5,6 @@ const { Schema } = mongoose;
 const SportTypeSchema = new Schema({
     id:{
         type: Number,
-        required: true,
         auto:true,
     },
     name: {

@@ -8,10 +8,16 @@ module.exports = async (req, res, next) => {
     }
     if (authorizationHeader) {
         try {
+            authorizationHeader = authorizationHeader.replace('Bearer ', '');
             const decoded = await jwt.verify(authorizationHeader, dotenv.parsed.SECRET_KEY);
-            const user = await User.findOne({ name: decoded.name });
+            console.log('decoded', decoded);
+            try {
+                user = await User.find({ userName: decoded.userName }).populate('userRole').exec();
+            } catch (error) {
+                throw error;
+            }
             if (user) {
-                req.user = user;
+                req.user = user[0];
                 next();
             }
             else {
@@ -19,9 +25,13 @@ module.exports = async (req, res, next) => {
             }
         } catch (error) {
             return res.status(401).json({
-                error: `You don't have permission`,
+                error: error,
                 error_type: 'not_authenticated'
             })
+            // return res.status(401).json({
+            //     error: `You don't have permission`,
+            //     error_type: 'not_authenticated'
+            // })
         }
     } else {
         return res.status(500).json({

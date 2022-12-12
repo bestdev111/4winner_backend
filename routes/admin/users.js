@@ -10,6 +10,7 @@ const Role = require("../../models/role");
 const validateRegister = require("../../validation/validateRegister");
 const validateLogin = require("../../validation/validateLogin");
 const dotenv = require("dotenv").config();
+// get User
 router.get("/", async (req, res) => {
     const userInfo = req.query;
     await User.find(function (err, users) {
@@ -23,7 +24,7 @@ router.get("/", async (req, res) => {
                         id: index,
                         _id: user._id,
                         name: user.name,
-                        role: user.userrole,
+                        role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
                     };
@@ -32,13 +33,13 @@ router.get("/", async (req, res) => {
                 }
                 if (
                     userInfo.role === "agent" &&
-                    user.userrole === "distributor"
+                    user.userRole === "distributor"
                 ) {
                     obj = {
                         id: index,
                         _id: user._id,
                         name: user.name,
-                        role: user.userrole,
+                        role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
                     };
@@ -47,25 +48,25 @@ router.get("/", async (req, res) => {
                 }
                 if (
                     userInfo.role === "distributor" &&
-                    user.userrole === "cashier"
+                    user.userRole === "cashier"
                 ) {
                     obj = {
                         id: index,
                         _id: user._id,
                         name: user.name,
-                        role: user.userrole,
+                        role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
                     };
                     arr.push(obj);
                     index++;
                 }
-                if (userInfo.role === "cashier" && user.userrole === "user") {
+                if (userInfo.role === "cashier" && user.userRole === "user") {
                     obj = {
                         id: index,
                         _id: user._id,
                         name: user.name,
-                        role: user.userrole,
+                        role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
                     };
@@ -90,7 +91,7 @@ router.post("/login", async (req, res) => {
         return res.status(400).json(errors);
     }
     try {
-        const user = await User.findOne({ name: req.body.name }).exec();
+        const user = await User.findOne({ userName: req.body.userName }).populate('userRole').exec();
         if (!user) {
             return res.status(401).json({
                 name: "Could not find user.",
@@ -99,19 +100,20 @@ router.post("/login", async (req, res) => {
         return bcrypt.compare(
             req.body.password,
             user.password,
-            (err, result) => {
+            async (err, result) => {
                 if (err) {
                     return res.status(401).json({
                         message: "Auth failed.",
                     });
                 }
                 if (result) {
+                    // sign jwt token
                     const token = jwt.sign(
                         {
                             userId: user._id,
                             createdAt: user.createdAt,
-                            name: user.name,
-                            role: user.userrole,
+                            userName: user.userName,
+                            userRole: user.userRole.role,
                             lang: user.lang,
                             balance: user.balance,
                         },
@@ -134,26 +136,35 @@ router.post("/login", async (req, res) => {
         return res.status(500).json({ message: err });
     }
 });
-router.post("/register", logged, async (req, res) => {
+// @Route   /admin/register
+// @Summary register a user
+router.post("/register", async (req, res) => {
     const { errors, isValid } = validateRegister(req.body);
 
     if (!isValid) {
         return res.status(400).json(errors);
     }
     try {
-        const user = await User.find({ name: req.body.name }).exec();
+        const user = await User.find({ userName: req.body.userName }).exec();
         if (user.length > 0) {
             return res.status(409).json({ error: "Name already exists." });
         }
-        return bcrypt.hash(req.body.password, 10, (error, hash) => {
+        return bcrypt.hash(req.body.password, 10, async (error, hash) => {
             if (error) {
                 return res.status(500).json({ error });
             }
+            // find the object id of the requested role to refer
+            try {
+                role = await Role.find({role: req.body.userRole}).exec();
+                console.log('fetched ' + req.body.userRole + ' role is ', role[0]._id);
+            } catch (error) {
+                return res.status(500).json({ error: "That role does not exist" });
+            }
             const newUser = new User({
+                userName: req.body.userName,
                 name: req.body.name,
-                userrole: req.body.role,
-                password: hash,
-                createdAt: new Date().getTime(),
+                userRole: role[0]._id,
+                password: hash
             });
             return newUser
                 .save()
@@ -174,7 +185,8 @@ router.post("/update", async (req, res) => {
             { _id: req.body.userId },
             { lang: req.body.lang },
             { new: true, upsert: true, returnOriginal: false }
-        );
+        )
+        .populate('userRole');
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -182,8 +194,8 @@ router.post("/update", async (req, res) => {
             {
                 userId: user._id,
                 createdAt: user.createdAt,
-                name: user.name,
-                role: user.userrole,
+                userName: user.userName,
+                userRole: user.userRole.role,
                 lang: user.lang,
                 balance: user.balance,
             },
@@ -232,7 +244,7 @@ router.post("/updateuser", logged, async (req, res) => {
             { _id: req.body._id },
             {
                 name: req.body.name,
-                userrole: req.body.role,
+                userRole: req.body.role,
             },
             { new: false, upsert: true, returnOriginal: false }
         );

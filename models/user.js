@@ -50,7 +50,7 @@ const UserSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'CasinoType'
     },
-    allowedSportsType: [{
+    allowedSportType: [{
             type: Schema.Types.ObjectId,
             ref: 'SportsType'
     }],

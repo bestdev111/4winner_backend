@@ -4,7 +4,6 @@ const { Schema } = mongoose;
 const BetSchema = new Schema({
     id: {
         type: Number,
-        required: true,
         auto: true,
     },
     customer: {
