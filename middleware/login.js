@@ -10,7 +10,6 @@ module.exports = async (req, res, next) => {
         try {
             authorizationHeader = authorizationHeader.replace('Bearer ', '');
             const decoded = await jwt.verify(authorizationHeader, dotenv.parsed.SECRET_KEY);
-            console.log('decoded', decoded);
             try {
                 user = await User.find({ userName: decoded.userName }).populate('userRole').exec();
             } catch (error) {
