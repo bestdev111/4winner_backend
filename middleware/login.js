@@ -27,10 +27,6 @@ module.exports = async (req, res, next) => {
                 error: error,
                 error_type: 'not_authenticated'
             })
-            // return res.status(401).json({
-            //     error: `You don't have permission`,
-            //     error_type: 'not_authenticated'
-            // })
         }
     } else {
         return res.status(500).json({

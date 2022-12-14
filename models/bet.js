@@ -3,7 +3,8 @@ const sportType = require('./sportType');
 const { Schema } = mongoose;
 const BetSchema = new Schema({
     id: {
-        type: Number,
+        type: Schema.Types.ObjectId,
+        required: true,
         auto: true,
     },
     customer: {
@@ -21,6 +22,56 @@ const BetSchema = new Schema({
         required: true,
         min: 0,
         default: 0
+    },
+    tax: {
+        type: Number,
+        required: true,
+        min: 0,
+        default: 0
+    },
+    stakePerBet: {
+        type: Number,
+        required: true,
+        min: 0,
+        default: 0
+    },
+    maxWinning: {
+        type: Number,
+        required: true,
+        min: 0,
+        default: 0
+    },
+    matchId: {
+        type: Number,
+        required: true,
+    },
+    homeTeam: {
+        type: String,
+        required: true,
+    },
+    awayTeam: {
+        type: String,
+        required: true,
+    },
+    homeTeamScore: {
+        type: Number,
+        required: true,
+    },
+    awayTeamScore: {
+        type: Number,
+        required: true,
+    },
+    betType: {
+        type: String,
+        required: true,
+    },
+    odds: {
+        type: String,
+        required: true,
+    },
+    selectedOdds: {
+        type: String,
+        required: true,
     },
     paid: {
         type: Number,
