@@ -32,7 +32,8 @@ const UserSchema = new Schema({
     balance: {
         type: Number,
         required: true,
-        default: 0.00
+        default: 0.00,
+        min: 0.00
     },
     parent: {
         type: Schema.Types.ObjectId,

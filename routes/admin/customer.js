@@ -88,6 +88,59 @@ router.post("/create", logged, async (req, res) => {
   }
 });
 
+// @Route put /admin/customer/update
+// @Summary an agent (or a cashier) is creating a user
+router.put("/update", logged, async (req, res) => {
+  if(req.user.userRole.role != 'agent')
+    return res.status(401).json({message: "You're not allowed to perform operation"});
+
+  try {
+      // If there is a user whose userName is the same as the requested userName return name-already-exist error message
+      user = await User.findOne({ userName: req.body.userName }).exec();
+      if (!user) {
+          return res.status(409).json({ error: "User not found" });
+      }
+      // find the object id of the requested casino type to refer
+      casinoType = null;
+      if(req.body.casinoType)
+        try {
+          casinoType = await CasinoType.find({name: req.body.casinoType}).exec();
+          casinoType = casinoType[0]._id;
+        } catch (error) {
+          console.log('That casino type does not exist');  
+          throw error;
+        }
+      // fetch the object ids of allowed Sport Types
+      allowedSportType = new Array();
+      try {
+        sportType = await SportType.find({name: { $in: req.body.allowedSportType}}).exec();
+        sportType.forEach(element => {
+          allowedSportType.push(element._id);
+        });
+      } catch (error) {
+        console.log("Some of those sport types do not exist");
+        throw error;
+      }
+      // now set up a new user
+      user = await User.findOneAndUpdate({
+        userName: req.body.userName
+      },
+      {
+        name: req.body.name,
+        isCasinoEnabled: req.body.enableCasino,
+        casinoType: casinoType,
+        allowedSportType: allowedSportType,
+        maximumStakeLimit: req.body.maximumStakeLimit,
+        totalOddsLimit: req.body.totalOddsLimit,
+        isCashoutEnabled: req.body.isCashoutEnabled
+      });
+      return res.status(200).json({message: "User " + user.userName + " updated successufuly"});
+    }catch(err){
+      console.log(err);
+      return res.status(500).json({ message: "Temporary Error while updating customer"});
+    }
+});
+
 // @Route /admin/customer/getusers
 // @Summary get users whose parent is that agent
 router.get('/getusers', logged, async (req, res) => {
@@ -95,6 +148,63 @@ router.get('/getusers', logged, async (req, res) => {
     res.status(401).json({message: "You're not allowed to perform operation"});
   users = await getAllUsers(req.user);
   res.status(200).json({users: users});
+})
+
+// @Route /admin/customer/changestatus
+// @Summary block or active the customer
+router.post('/changestatus', logged, async (req, res) => {
+  if(req.user.userRole.role != 'agent')
+    res.status(401).json({message: "You're not allowed to perform operation"});
+  try{
+    const user = await User.findOneAndUpdate({
+      userName: req.body.userName
+    }, {
+      active: req.body.blockStatus
+    })
+    user.active = req.body.blockStatus;
+    return res.status(200).json({user: user});
+  }catch(err){
+    console.log('err while blocking/activating statuas', err);
+    return res.status(500).json({message: 'Error while blocking/activating customer'});
+  }
+})
+
+// @Route /admin/customer/changepass
+// @Summary block or active the customer
+router.post('/changepass', logged, async (req, res) => {
+  if(req.user.userRole.role != 'agent')
+    res.status(401).json({message: "You're not allowed to perform operation"});
+  bcrypt.compare(
+    req.body.loginPass,
+    req.user.password,
+    async (err, result) => {
+      if(err) 
+        return res.status(401).json({message: "Auth failed"});
+      else if(result){
+        bcrypt.hash(req.body.newPass, 10, async (err, hash) => {
+          try{
+            user = await User.findOne({
+              userName: req.body.userName
+            });
+          }catch(err){
+            console.log(err);
+            return res.status(404).json({message: 'User not found'});
+          }
+          user.password = hash;
+          user.save()
+            .then(result => {
+              return res.status(200).json({message: user.userName + "'s password is updated"});
+            })
+            .catch(err => {
+              console.log(err);
+              return res.status(500).json({message: 'Server error while updating customer password'});
+            })
+        });
+      }
+      else 
+        return res.status(401).json({message: "Wrong password"});
+    }
+  )
 })
 
 module.exports = router;
