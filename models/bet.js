@@ -17,6 +17,11 @@ const BetSchema = new Schema({
     //     ref: 'sportType',
     //     required: true
     // },
+    betSystem: {
+        type: String,
+        required: true,
+        default: 'Single/Multiple'
+    },
     initialStake: {
         type: Number,
         required: true,
@@ -101,6 +106,16 @@ const BetSchema = new Schema({
         type: Date,
         default: Date.now,
         required: true
+    },
+    state: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    winning: {
+        type: Number,
+        required: true,
+        default: 0,
     },
     details: {
         type: String
