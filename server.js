@@ -31,12 +31,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true }
     .catch(err => console.log('Failed to connect to MongoDB', err));
 
 setInterval(() => {
-    getMatches();
-    getAllMatches();
-    m_getMatches();
-    m_getTopLeagues();
-    m_getAllMatches();
-    m_getLeagueSorts();
+    // getMatches();
+    // getAllMatches();
+    // m_getMatches();
+    // m_getTopLeagues();
+    // m_getAllMatches();
+    // m_getLeagueSorts();
 }, 2000);
 
 // using middlewares
