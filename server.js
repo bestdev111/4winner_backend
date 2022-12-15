@@ -37,7 +37,7 @@ setInterval(() => {
     m_getTopLeagues();
     m_getAllMatches();
     m_getLeagueSorts();
-}, 35000);
+}, 2000);
 
 // using middlewares
 app.use(bodyParser.json());
