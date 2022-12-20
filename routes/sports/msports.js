@@ -61,14 +61,14 @@ router.get('/getLeagueSorts', async (req, res) => {
         res.status(500).json({ err });
     }
 });
-router.get('/getResult', async (req, res) => {
+router.post('/getResult', async (req, res) => {
     try {
-        console.log("hello:", req.body);
-        let date = '2022-12-19';
-        let betradarSportType = 1;
+        let date = req.body.date;
+        let betradarSportType = req.body.betradarSportType;
         const url = `https://m.4winners.bet/Home/GetFinishedMatches?` +
         `betradarSportType=${betradarSportType}&` +
         `date=${date}`;
+        console.log("hello:", url);
         const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
         res.status(200).json({ data });
     } catch (err) {
