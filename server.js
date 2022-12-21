@@ -13,6 +13,7 @@ const adminBalance = require('./routes/admin/balance');
 const adminCustomer = require('./routes/admin/customer');
 const adminSeed = require('./routes/admin/seed');
 const adminTransaction = require('./routes/admin/transaction');
+const adminShop = require('./routes/admin/shop');
 const sports = require('./routes/sports/sports');
 const m_sports = require('./routes/sports/msports');
 const betting = require('./routes/betting/betting');
@@ -31,13 +32,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true }
     .catch(err => console.log('Failed to connect to MongoDB', err));
 
 setInterval(() => {
-    getMatches();
-    getAllMatches();
-    m_getMatches();
-    m_getTopLeagues();
-    m_getAllMatches();
-    m_getLeagueSorts();
-}, 35000);
+    // getMatches();
+    // getAllMatches();
+    // m_getMatches();
+    // m_getTopLeagues();
+    // m_getAllMatches();
+    // m_getLeagueSorts();
+}, 2000);
 
 // using middlewares
 app.use(bodyParser.json());
@@ -49,6 +50,7 @@ app.use('/admin/balance', adminBalance);
 app.use('/admin/customer', adminCustomer);
 app.use('/admin/seed', adminSeed);
 app.use('/admin/transactions', adminTransaction);
+app.use('/admin/shop', adminShop);
 app.use('/sports', sports);
 app.use('/betting', betting);
 app.use('/m_sports', m_sports);

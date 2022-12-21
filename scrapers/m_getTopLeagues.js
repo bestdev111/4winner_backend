@@ -15,7 +15,7 @@ const m_getTopLeagues = async () => {
     const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
     processData(data);
   } catch (err) {
-    console.log("error", err);
+    // console.log("error", err);
   }
 };
 
