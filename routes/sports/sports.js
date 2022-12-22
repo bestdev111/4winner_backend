@@ -14,7 +14,7 @@ router.get('/getAllMatches', async (req, res) => {
         res.status(500).json({ err });
     }
 });
-router.get('/getMatches', async (req, res) => {
+router.post('/getMatches', async (req, res) => {
     try {
         let sportTypeId = req.body.sportTypeId;
         // let betradarCategoryId = req.body.betradarCategoryId;
