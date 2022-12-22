@@ -52,8 +52,8 @@ const UserSchema = new Schema({
         ref: 'CasinoType'
     },
     allowedSportType: [{
-            type: Schema.Types.ObjectId,
-            ref: 'SportsType'
+        type: Schema.Types.ObjectId,
+        ref: 'SportsType'
     }],
     maximumStakeLimit: {
         type: Number,
@@ -74,6 +74,10 @@ const UserSchema = new Schema({
     unsettled: {
         type: Number,
         default: 0
+    },
+    shop: {
+        type: Schema.Types.ObjectId,
+        ref: 'Shop'
     }
 }, {
     timestamps: true
