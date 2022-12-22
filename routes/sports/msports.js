@@ -43,34 +43,34 @@ router.post('/getMatches', async (req, res) => {
         res.status(500).json({ err });
     }
 });
-// router.get('/getTopLeagues', async (req, res) => {
-//     try {
-//         await fs.readFile(`${dataDir}m_getTopLeagues.json`, 'utf8', (err, stringData) => {
-//             if (err) {
-//                 res.status(500).json({ err });
-//                 return;
-//             }
-//             const data = JSON.parse(stringData);
-//             res.status(200).json({ data });
-//         });
-//     } catch (err) {
-//         res.status(500).json({ err });
-//     }
-// });
-// router.get('/getLeagueSorts', async (req, res) => {
-//     try {
-//         await fs.readFile(`${dataDir}m_getLeagueSorts.json`, 'utf8', (err, stringData) => {
-//             if (err) {
-//                 res.status(500).json({ err });
-//                 return;
-//             }
-//             const data = JSON.parse(stringData);
-//             res.status(200).json({ data });
-//         });
-//     } catch (err) {
-//         res.status(500).json({ err });
-//     }
-// });
+router.get('/getTopLeagues', async (req, res) => {
+    try {
+        await fs.readFile(`${dataDir}m_getTopLeagues.json`, 'utf8', (err, stringData) => {
+            if (err) {
+                res.status(500).json({ err });
+                return;
+            }
+            const data = JSON.parse(stringData);
+            res.status(200).json({ data });
+        });
+    } catch (err) {
+        res.status(500).json({ err });
+    }
+});
+router.get('/getLeagueSorts', async (req, res) => {
+    try {
+        await fs.readFile(`${dataDir}m_getLeagueSorts.json`, 'utf8', (err, stringData) => {
+            if (err) {
+                res.status(500).json({ err });
+                return;
+            }
+            const data = JSON.parse(stringData);
+            res.status(200).json({ data });
+        });
+    } catch (err) {
+        res.status(500).json({ err });
+    }
+});
 router.post('/getResult', async (req, res) => {
     try {
         let date = req.body.date;
