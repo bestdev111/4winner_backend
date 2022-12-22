@@ -5,15 +5,20 @@ const fs = require("fs");
 const axios = require("axios");
 const dataDir = path.join(__dirname, "../../data/");
 
-// router.get('/getAllMatches', async (req, res) => {
-//     try {
-//         const url = `https://m.4winners.bet/Home/GetMatches?sportTypeId=1&betradarCategoryId=0&leagueName=&matchState=home&startIndex=0&orderByLeague=false`
-//         const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
-//         res.status(200).json({ data });
-//     } catch (err) {
-//         res.status(500).json({ err });
-//     }
-// });
+router.get('/getAllMatches', async (req, res) => {
+    try {
+        await fs.readFile(`${dataDir}m_getAllMatches.json`, 'utf8', (err, stringData) => {
+            if (err) {
+                res.status(500).json({ err });
+                return;
+            }
+            const data = JSON.parse(stringData);
+            res.status(200).json({ data });
+        });
+    } catch (err) {
+        res.status(500).json({ err });
+    }
+});
 router.post('/getMatches', async (req, res) => {
     try {
         let sportTypeId = req.body.sportTypeId;
@@ -32,30 +37,40 @@ router.post('/getMatches', async (req, res) => {
             `startIndex=${startIndex}&` +
             `orderByLeague=${orderByLeague}`;
             const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
-            console.log('===>',data);
+            // console.log('===>',data);
         res.status(200).json({ data });
     } catch (err) {
         res.status(500).json({ err });
     }
 });
-router.get('/getTopLeagues', async (req, res) => {
-    try {
-        const url = `https://m.4winners.bet/Home/GetTopLeages`
-        const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
-        res.status(200).json({ data });
-    } catch (err) {
-        res.status(500).json({ err });
-    }
-});
-router.get('/getLeagueSorts', async (req, res) => {
-    try {
-        const url = `https://m.4winners.bet/Home/GetLeagueSorts`
-        const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
-        res.status(200).json({ data });
-    } catch (err) {
-        res.status(500).json({ err });
-    }
-});
+// router.get('/getTopLeagues', async (req, res) => {
+//     try {
+//         await fs.readFile(`${dataDir}m_getTopLeagues.json`, 'utf8', (err, stringData) => {
+//             if (err) {
+//                 res.status(500).json({ err });
+//                 return;
+//             }
+//             const data = JSON.parse(stringData);
+//             res.status(200).json({ data });
+//         });
+//     } catch (err) {
+//         res.status(500).json({ err });
+//     }
+// });
+// router.get('/getLeagueSorts', async (req, res) => {
+//     try {
+//         await fs.readFile(`${dataDir}m_getLeagueSorts.json`, 'utf8', (err, stringData) => {
+//             if (err) {
+//                 res.status(500).json({ err });
+//                 return;
+//             }
+//             const data = JSON.parse(stringData);
+//             res.status(200).json({ data });
+//         });
+//     } catch (err) {
+//         res.status(500).json({ err });
+//     }
+// });
 router.post('/getResult', async (req, res) => {
     try {
         let date = req.body.date;
@@ -71,17 +86,3 @@ router.post('/getResult', async (req, res) => {
 });
 
 module.exports = router
-router.get('/getAllMatches', async (req, res) => {
-    try {
-        await fs.readFile(`${dataDir}m_getAllMatches.json`, 'utf8', (err, stringData) => {
-            if (err) {
-                res.status(500).json({ err });
-                return;
-            }
-            const data = JSON.parse(stringData);
-            res.status(200).json({ data });
-        });
-    } catch (err) {
-        res.status(500).json({ err });
-    }
-});

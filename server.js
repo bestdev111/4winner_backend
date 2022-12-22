@@ -19,11 +19,11 @@ const m_sports = require('./routes/sports/msports');
 const betting = require('./routes/betting/betting');
 
 const getAllMatches = require("./scrapers/getAllMatches");
+const m_getAllMatches = require("./scrapers/m_getAllMatches");
+const m_getTopLeagues = require("./scrapers/m_getTopLeagues");
+const m_getLeagueSorts = require("./scrapers/m_getLeagueSorts");
 // const getMatches = require("./scrapers/getMatches");
 // const m_getMatches = require("./scrapers/m_getMatches");
-// const m_getAllMatches = require("./scrapers/m_getAllMatches");
-// const m_getTopLeagues = require("./scrapers/m_getTopLeagues");
-// const m_getLeagueSorts = require("./scrapers/m_getLeagueSorts");
 
 //db connect
 const mongoose = require('mongoose')
@@ -33,10 +33,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true }
 
 setInterval(() => {
     getAllMatches();
+    m_getTopLeagues();
+    m_getAllMatches();
+    m_getLeagueSorts();
     // getMatches();
-    // m_getTopLeagues();
-    // m_getAllMatches();
-    // m_getLeagueSorts();
 }, 2000);
 
 // using middlewares
