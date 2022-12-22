@@ -5,7 +5,7 @@ const fs = require("fs");
 const axios = require("axios");
 const dataDir = path.join(__dirname, "../../data/");
 
-router.post('/getAllMatches', async (req, res) => {
+router.get('/getAllMatches', async (req, res) => {
     try {
         const url = `https://4winners.bet/Home/GetMatches?sportTypeId=1&betradarCategoryId=0&leagueName=&matchState=home&startIndex=0&orderByLeague=false`
         const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
@@ -14,7 +14,7 @@ router.post('/getAllMatches', async (req, res) => {
         res.status(500).json({ err });
     }
 });
-router.post('/getMatches', async (req, res) => {
+router.get('/getMatches', async (req, res) => {
     try {
         let sportTypeId = req.body.sportTypeId;
         // let betradarCategoryId = req.body.betradarCategoryId;
