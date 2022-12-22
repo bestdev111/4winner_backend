@@ -23,7 +23,8 @@ router.post('/getMatches', async (req, res) => {
     try {
         let sportTypeId = req.body.sportTypeId;
         let betradarCategoryId = req.body.betradarCategoryId;
-        let leagueName = req.body.leagueName !== undefined ? req.body.leagueName : '';
+        // let leagueName = req.body.leagueName !== undefined ? req.body.leagueName : '';
+        let leagueName = 'Premier%20League';
         let matchState = req.body.matchState;
         let startIndex = req.body.startIndex;
         let orderByLeague = req.body.orderByLeague;
