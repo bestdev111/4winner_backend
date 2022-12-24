@@ -13,7 +13,7 @@ router.get('/getAllMatches', async (req, res) => {
                 return;
             }
             const data = JSON.parse(stringData);
-            res.setHeader("Access-Control-Allow-Origin: https://volley90.com");
+            res.setHeader("Access-Control-Allow-Origin", "*");
             // res.setHeader("Access-Control-Allow-Credentials", "true");
             // res.setHeader("Access-Control-Max-Age", "1800");
             // res.setHeader("Access-Control-Allow-Headers", "content-type");
@@ -41,6 +41,7 @@ router.post('/getMatches', async (req, res) => {
             `startIndex=${startIndex}&` +
             `orderByLeague=${orderByLeague}`;
         const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
+        res.setHeader("Access-Control-Allow-Origin", "*");
         res.status(200).json({ data });
     } catch (err) {
         res.status(500).json({ err });
@@ -55,6 +56,7 @@ router.get('/getTopLeagues', async (req, res) => {
                 return;
             }
             const data = JSON.parse(stringData);
+            res.setHeader("Access-Control-Allow-Origin", "*");
             res.status(200).json({ data });
         });
     } catch (err) {
@@ -70,6 +72,7 @@ router.get('/getLeagueSorts', async (req, res) => {
                 return;
             }
             const data = JSON.parse(stringData);
+            res.setHeader("Access-Control-Allow-Origin", "*");
             res.status(200).json({ data });
         });
     } catch (err) {
@@ -85,7 +88,7 @@ router.post('/getResult', async (req, res) => {
             `betradarSportType=${betradarSportType}&` +
             `date=${date}`;
         const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
-        compareMatchResult();
+        res.setHeader("Access-Control-Allow-Origin", "*");
         res.status(200).json({ data });
     } catch (err) {
         res.status(500).json({ err });
