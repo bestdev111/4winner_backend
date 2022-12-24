@@ -33,10 +33,11 @@ router.post('/newbet', logged, async (req, res) => {
         betsData.forEach(item=> {
             newBet = new Bet({
                 customer: userData._id,
+                sportTypeId: item.sportTypeId,
                 initialStake: betState.initialStake,
                 tax: betState.tax,
                 stakePerBet: betState.stakeBet,
-                maxWinning: betState.maxWinning,
+                // maxWinning: betState.maxWinning,
                 betSystem: item.betSystem,
                 matchId: item.matchId,
                 homeTeam: item.homeTeam,

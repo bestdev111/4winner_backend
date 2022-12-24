@@ -1,6 +1,5 @@
 const bodyParser = require('body-parser');
 const express = require('express');
-const path = require('path')
 const dotenv = require('dotenv').config();
 const app = express();
 // cors prevent
@@ -25,6 +24,8 @@ const m_getLeagueSorts = require("./scrapers/m_getLeagueSorts");
 // const getMatches = require("./scrapers/getMatches");
 // const m_getMatches = require("./scrapers/m_getMatches");
 
+const betService = require("./Services/betService");
+
 //db connect
 const mongoose = require('mongoose')
 mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true })
@@ -36,8 +37,11 @@ setInterval(() => {
     m_getTopLeagues();
     m_getAllMatches();
     m_getLeagueSorts();
-    // getMatches();
 }, 2000);
+
+setInterval(() => {
+    betService()
+}, 10000);
 
 // using middlewares
 app.use(bodyParser.json());
