@@ -22,20 +22,12 @@ router.get('/getAllMatches', async (req, res) => {
 router.post('/getMatches', async (req, res) => {
     try {
         let sportTypeId = req.body.sportTypeId;
-        // let betradarCategoryId = req.body.betradarCategoryId;
-        // let leagueName = req.body.leagueName !== undefined ? req.body.leagueName : '';
         let betradarCategoryId = 1;
-        let leagueName = 'Premier%20League';
+        let leagueName = req.body.leagueName;
         let matchState = req.body.matchState;
         let startIndex = req.body.startIndex;
         let orderByLeague = req.body.orderByLeague;
-        const url = `https://m.4winners.bet/Home/GetMatches?` +
-            `sportTypeId=${sportTypeId}&` +
-            `betradarCategoryId=${betradarCategoryId}&` +
-            `leagueName=${leagueName}&` +
-            `matchState=${matchState}&` +
-            `startIndex=${startIndex}&` +
-            `orderByLeague=${orderByLeague}`;
+        const url = `https://4winners.bet/Home/GetMatches?sportTypeId=1&betradarCategoryId=0&leagueName=&matchState=firstpage&startIndex=0&orderByLeague=false`;
         console.log('===>', data);
         const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Mobile Safari/537.36' } });
         res.status(200).json({ data });
