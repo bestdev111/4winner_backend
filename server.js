@@ -1,6 +1,5 @@
 const bodyParser = require('body-parser');
 const express = require('express');
-const path = require('path')
 const dotenv = require('dotenv').config();
 const app = express();
 // cors prevent
@@ -19,12 +18,14 @@ const sports = require('./routes/sports/sports');
 const m_sports = require('./routes/sports/msports');
 const betting = require('./routes/betting/betting');
 
-const getMatches = require("./scrapers/getMatches");
 const getAllMatches = require("./scrapers/getAllMatches");
-const m_getMatches = require("./scrapers/m_getMatches");
 const m_getAllMatches = require("./scrapers/m_getAllMatches");
 const m_getTopLeagues = require("./scrapers/m_getTopLeagues");
 const m_getLeagueSorts = require("./scrapers/m_getLeagueSorts");
+// const getMatches = require("./scrapers/getMatches");
+// const m_getMatches = require("./scrapers/m_getMatches");
+
+const betService = require("./Services/betService");
 
 //db connect
 const mongoose = require('mongoose')
@@ -33,13 +34,15 @@ mongoose.connect('mongodb://127.0.0.1:27017/sportBet', { useNewUrlParser: true }
     .catch(err => console.log('Failed to connect to MongoDB', err));
 
 setInterval(() => {
-    // getMatches();
-    // getAllMatches();
-    // m_getMatches();
-    // m_getTopLeagues();
-    // m_getAllMatches();
-    // m_getLeagueSorts();
+    getAllMatches();
+    m_getTopLeagues();
+    m_getAllMatches();
+    m_getLeagueSorts();
 }, 2000);
+
+setInterval(() => {
+    betService()
+}, 10000);
 
 // using middlewares
 app.use(bodyParser.json());

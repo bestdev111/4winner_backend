@@ -12,11 +12,11 @@ const BetSchema = new Schema({
         ref: 'User',
         required: true
     },
-    // type: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'sportType',
-    //     required: true
-    // },
+    sportTypeId: {
+        type: Number,
+        // ref: 'sportType',
+        required: true
+    },
     betSystem: {
         type: String,
         required: true,
@@ -40,11 +40,10 @@ const BetSchema = new Schema({
         min: 0,
         default: 0
     },
-    maxWinning: {
+    winning: {
         type: Number,
         required: true,
-        min: 0,
-        default: 0
+        default: 0,
     },
     matchId: {
         type: String,
@@ -112,10 +111,10 @@ const BetSchema = new Schema({
         required: true,
         default: 0
     },
-    winning: {
+    isResolved: {
         type: Number,
         required: true,
-        default: 0,
+        default: 0
     },
     details: {
         type: String

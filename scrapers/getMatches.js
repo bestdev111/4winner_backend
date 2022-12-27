@@ -1,10 +1,6 @@
-const cheerio = require("cheerio");
 const fs = require("fs");
 const path = require("path");
-const pretty = require("pretty");
 const axios = require("axios");
-const { contains } = require("cheerio");
-
 const dataDir = path.join(__dirname, "../data/");
 
 // URL of the page we want to scrape
