@@ -10,25 +10,37 @@ const TransactionSchema = new Schema({
         required: true,
         default: Date.now
     },
+    admin: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    agent: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    distributor: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    shop: {
+        type: Schema.Types.ObjectId,
+        ref: 'Shop'
+    },
     cashier: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'User'
     },
     customer: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'User'
     },
     type: {
-        type: Schema.Types.ObjectId,
-        ref: 'TransactionType',
+        type: Number,
         required: true
     },
     amount: {
         type: Number,
-        required: true,
-        min: 0
+        required: true
     }
 }, {
     timestamps: true

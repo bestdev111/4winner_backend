@@ -4,16 +4,17 @@ const router = express.Router();
 const logged = require("../../middleware/login");
 const User = require("../../models/user");
 const Transaction = require('../../models/transaction');
-const TransactionType = require('../../models/transactionType');
+const Shop = require('../../models/shop')
 const TransactionService = require('../../Services/transactionService');
-const { getAllUsers } = require("../../Services/userService");
+const { getPlayers } = require("../../Services/userService");
+const user = require("../../models/user");
 
 // @Route /admin/balance/getusers
 // @Summary return users whose parent is logged-in agent
 router.get("/getusers", logged, async (req, res) => {
-  if(req.user.userRole.role != 'agent')
+  if(req.user.userRole.role != 'cashier')
     return res.status(401).json({message: "You're not allowed to perform operation"});
-  users = await getAllUsers(req.user);
+  users = await getPlayers(req.user);
   return res.status(200).json({users: users});
 });
 
@@ -21,9 +22,12 @@ router.get("/getusers", logged, async (req, res) => {
 // @Summary deposit credit to the customer
 router.post("/deposit", logged, async (req, res) => {
   // only agent can perform deposit
-  if(req.user.userRole.role != 'agent')
+  if(req.user.userRole.role != 'cashier')
     return res.status(401).json({message: "You're not allowed to perform operation"});
   
+  let shop = await Shop.find({
+    _id: req.user.shop
+  })
   user = await User.findOne({
       userName: req.body.userName
     })
@@ -34,23 +38,22 @@ router.post("/deposit", logged, async (req, res) => {
     return res.status(401).json({message: "You are not allowed to deposit this customer's credit"});
   
   // check if the agent has enough balance left to deposit
-  if(req.user.balance < parseInt(req.body.amount))
+  if(shop.balance < parseInt(req.body.amount))
     return res.status(500).json({message: "You don't have enough credit left to deposit the customer"});
   else{
-    req.user.balance -= parseInt(req.body.amount);
+    shop.balance -= parseInt(req.body.amount);
     user.balance += parseInt(req.body.amount);
-    req.user.save()
+    shop.save()
       .then(result => {
         user.save()
           .then(async result => {
             // set the log to the Transaction table
             try{
-              transactionTypeId = await TransactionService.getTransactionTypeId('Deposit');
               console.log('transactionTypeId', transactionTypeId);
               transaction = new Transaction({
                  cashier: req.user._id,
                  customer: user._id,
-                 type: transactionTypeId,
+                 type: 45,
                  amount: parseInt(req.body.amount)
               });
               transaction.save();
@@ -78,6 +81,9 @@ router.post("/withdraw", logged, async (req, res) => {
   if(req.user.userRole.role != 'agent')
     res.status(401).json({message: "You're not allowed to perform operation"});
   
+  let shop = await Shop.find({
+    _id: req.user.shop
+  })
   user = await User.findOne({
       userName: req.body.userName
     })
@@ -90,21 +96,19 @@ router.post("/withdraw", logged, async (req, res) => {
   if(user.balance < parseInt(req.body.amount))
     res.status(500).json({message: "The user has no enough credit left to withdraw"});
   else {
-    req.user.balance += parseInt(req.body.amount);
+    shop.balance += parseInt(req.body.amount);
     user.balance -= parseInt(req.body.amount);
-    req.user.save()
+    shop.save()
       .then(result => {
         user.save()
           .then(async result => {
             // set the log to the Transaction table
             try{
-              transactionTypeId = await TransactionService.getTransactionTypeId('Withdraw');
-              console.log('transactionTypeId', transactionTypeId);
               transaction = new Transaction({
                  cashier: req.user._id,
                  customer: user._id,
-                 type: transactionTypeId,
-                 amount: parseInt(req.body.amount)
+                 type: 45,
+                 amount: -1 * parseInt(req.body.amount)
               });
               transaction.save();
             }catch(err){

@@ -6,11 +6,12 @@ const logged = require("../../middleware/login");
 const User = require("../../models/user");
 const Role = require("../../models/role");
 const Shop = require("../../models/shop");
+const Transaction = require('../../models/transaction');
 
 const shopService = require('../../Services/shopServices')
 
 // @Route /admin/shop/
-// @Summary an admin (or a dostrobitpr) is creating a shop
+// @Summary an admin (or a distributor) is getting the list of shops
 router.get('/', logged, async(req, res) => {
   if(req.user.userRole.priority > 3){
     console.log('userRole', req.user.userRole)
@@ -26,7 +27,7 @@ router.get('/', logged, async(req, res) => {
 })
 
 // @Route /admin/shop/
-// @Summary an admin (or a dostrobitpr) is creating a shop
+// @Summary an admin (or a distributor) is creating a shop
 router.post('/', logged, async (req, res) => {
   if(req.user.userRole.priority > 3){
     console.log('userRole', req.user.userRole)
@@ -68,6 +69,21 @@ router.post('/', logged, async (req, res) => {
         } catch (error) {
             throw error;
         }
+        // If there is a user whose userName is the same as the requested userName return name-already-exist error message
+        user = await User.find({ userName: req.body.distributorUserName }).exec();
+        if (user.length > 0) {
+          return res.status(409).json({ error: "Distributor's Name already exists." });
+        }
+        // If there is a user whose userName is the same as the requested userName return name-already-exist error message
+        user = await User.find({ userName: req.body.cashierUserName }).exec();
+        if (user.length > 0) {
+          return res.status(409).json({ error: "Cashier's Name already exists." });
+        }
+        // If there is a user whose userName is the same as the requested userName return name-already-exist error message
+        let shop = await Shop.find({ name: req.body.title }).exec();
+        if (shop.length > 0) {
+          return res.status(409).json({ error: "Shop name already exists." });
+        }
         const newAgent = new User({
           userName: req.body.agentUserName,
           name: req.body.agentUserName,
@@ -84,12 +100,6 @@ router.post('/', logged, async (req, res) => {
               if (error) {
                 createdAgent.delete()
                 return res.status(500).json({ error });
-              }
-              // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-              let user = await User.find({ userName: req.body.distributorUserName }).exec();
-              if (user.length > 0) {
-                createdAgent.delete()
-                return res.status(409).json({ error: "Distributor's Name already exists." });
               }
               // find the object id of the requested role to refer
               try {
@@ -114,13 +124,6 @@ router.post('/', logged, async (req, res) => {
                       createdDistributor.delete()
                       return res.status(500).json({ error });
                     }
-                    // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-                    let user = await User.find({ userName: req.body.cashierUserName }).exec();
-                    if (user.length > 0) {
-                      createdAgent.delete()
-                      createdDistributor.delete()
-                      return res.status(409).json({ error: "Cashier's Name already exists." });
-                    }
                     // find the object id of the requested role to refer
                     try {
                         role = await Role.find({role: 'cashier'}).exec();
@@ -137,14 +140,6 @@ router.post('/', logged, async (req, res) => {
                     newCashier
                       .save()
                       .then(async createdCashier => {
-                        // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-                        let shop = await Shop.find({ name: req.body.title }).exec();
-                        if (shop.length > 0) {
-                          createdAgent.delete()
-                          createdDistributor.delete()
-                          createdCashier.delete()
-                          return res.status(409).json({ error: "Shop name already exists." });
-                        }
                         newShop = new Shop({
                           name: req.body.title,
                           currency: req.body.currency,
@@ -160,7 +155,29 @@ router.post('/', logged, async (req, res) => {
                             createdCashier
                               .save()
                               .then(updatedCashier => {
-                                return res.status(200).json({ message: "Shop is created successufuly"});
+                                // create transactions here
+                                transactionAdminAgent = new Transaction({
+                                  admin: req.user._id,
+                                  agent: createdAgent._id,
+                                  amount: req.body.agentBalance,
+                                  type: 12
+                                })
+                                transactionAgentDistributor = new Transaction({
+                                  agent: createdAgent._id,
+                                  distributor: createdDistributor._id,
+                                  amount: req.body.distributorBalance,
+                                  type: 23
+                                })
+                                transactionAdminAgent.save().then(result => {
+                                  transactionAgentDistributor.save().then(result => {
+                                    return res.status(200).json({ message: "Shop is created successufuly"});
+                                  }).catch(err => {
+                                    transactionAdminAgent.delete()
+                                    throw err;
+                                  })
+                                }).catch(err => {
+                                  throw err;
+                                })
                               })
                               .catch(err => {
                                 createdShop.delete()
@@ -196,6 +213,9 @@ router.post('/', logged, async (req, res) => {
 
   // if the distributor is creating the shop
   else if(req.user.userRole.priority == 3){
+    // validate the input
+    if(req.body.title == '' || req.body.title === null || req.body.title === undefined)
+      res.status(500).json({message: "Shop title is required"});
     // If there is a user whose userName is the same as the requested userName return name-already-exist error message
     let shop = await Shop.find({ name: req.body.title }).exec();
     if (shop.length > 0) {
@@ -220,4 +240,42 @@ router.post('/', logged, async (req, res) => {
     })
   }  
 })
+
+// @Route /admin/shop/{shopId}
+// @Summary an admin (or a distributor) is editing a shop
+router.put('/{shopId}', logged, async (req, res) => {
+  if(req.user.userRole.priority > 3){
+    console.log('userRole', req.user.userRole)
+    res.status(401).json({message: "You're not allowed to perform the operation"});
+  }
+
+  if(req.user.userRole.priority == 2){
+    console.log('userRole', req.user.userRole)
+    res.status(401).json({message: "Agent can't edit a shop"});
+  }
+
+  // validate the input
+  if(req.body.title == '' || req.body.title === null || req.body.title === undefined)
+    res.status(500).json({message: "Shop title is required"});
+  // If there is a user whose userName is the same as the requested userName return name-already-exist error message
+  let shop = await Shop.find({ name: req.body.title }).exec();
+  if (shop.length > 0) {
+      return res.status(409).json({ error: "Shop name already exists." });
+  }
+  try{
+    shop = await Shop.findOneAndUpdate({
+      _id: req.params.shopId
+    },{
+      name: req.body.title,
+      currency: req.body.currency,
+      maxWin: req.body.maxWin,
+      shopLimit: req.body.shopLimit,
+      access: req.body.access
+    })
+  }catch(err) {
+    console.log(err)
+    return res.status(500).json({err:err})
+  }
+})
+
 module.exports = router;
