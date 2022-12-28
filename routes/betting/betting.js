@@ -7,6 +7,9 @@ const logged = require('../../middleware/login')
 const User = require("../../models/user")
 const Role = require("../../models/role")
 const Bet = require("../../models/bet")
+const Barcode = require("../../models/barcode");
+
+const generateBarcode = require('../../Services/barcodeService');
 
 router.get('/getmybet', logged, async (req, res)=> {
     try{
@@ -56,6 +59,28 @@ router.post('/newbet', logged, async (req, res) => {
     } catch (err) {
         return res.status(500).json({ message: err });
     }
+});
+
+// @Route /betting/barcode
+// @Method post
+router.post('/barcode', logged, async (req, res) => {
+    let timestamp = Date.now();
+    let userId = req.user._id;
+    
+    let barcode = await generateBarcode(timestamp, userId);
+    let newBarcode = new Barcode({
+        barcode: barcode,
+        barcodeJsonString: req.body.barcodeJsonString
+    })
+
+    newBarcode.save()
+        .then(result => {
+            return res.status(200).json({barcode: result.barcode});
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({err: err})
+        })
 });
 
 module.exports = router
