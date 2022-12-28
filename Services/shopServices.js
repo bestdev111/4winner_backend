@@ -6,8 +6,8 @@ const getShops = async (user) => {
       let shopsToAdd = await Shop.find({
         operator: user._id
       })
-      console.log('finding shop: current user ' + user.userName + ' role ' + user.userRole.role + ' _id ' + user._id)
-      console.log('shop count : ' + shopsToAdd.length)
+      // console.log('finding shop: current user ' + user.userName + ' role ' + user.userRole.role + ' _id ' + user._id)
+      // console.log('shop count : ' + shopsToAdd.length)
       return shopsToAdd
     }
     else if(user.userRole.priority < 3){  // if it is admin or agent
@@ -20,8 +20,8 @@ const getShops = async (user) => {
       shops = new Array()
       for(;idx < users.length; idx ++)
         shops = shops.concat(await getShops(users[idx], shops))
-      console.log('finding another user: current user ' + user.userName + ' role ' + user.userRole.role )
-      console.log('shop merged: ' + shops.length)
+      // console.log('finding another user: current user ' + user.userName + ' role ' + user.userRole.role )
+      // console.log('shop merged: ' + shops.length)
       return shops
     }
     else {
