@@ -22,6 +22,7 @@ router.get('/getmybet', logged, async (req, res) => {
         const betData = await Bet.find({ customer: req.user._id }).populate('date').exec();
         res.status(200).json({ betData })
     } catch (err) {
+        console.log('err', err);
         return res.status(500).json({ message: err });
     }
 })
@@ -70,6 +71,23 @@ router.post('/newbet', logged, async (req, res) => {
         return res.status(500).json({ message: err });
     }
 });
+
+router.post('/removebet', logged, async (req, res) => {
+    try{
+        const user = await User.findOne({ _id: req.user._id }).populate('userRole').exec();
+        if (!user) {
+            return res.status(401).json({
+                name: "Could not find user.",
+            });
+        }
+        Bet.deleteMany({ customer: req.user._id })
+        .then((result) => {
+            res.status(200).json({ result })
+        })
+    }catch{
+        console.log('error');
+    }
+})
 
 // @Route /betting/barcode
 // @Method post
