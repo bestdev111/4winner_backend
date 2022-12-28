@@ -1,27 +1,27 @@
 const express = require('express');
 const router = express.Router();
-
-const dotenv = require('dotenv').config();
-const jwt = require('jsonwebtoken');
 const logged = require('../../middleware/login')
 const User = require("../../models/user")
-const Role = require("../../models/role")
 const Bet = require("../../models/bet")
 const Barcode = require("../../models/barcode");
 
+const dotenv = require('dotenv').config();
+const Role = require("../../models/role")
+const jwt = require('jsonwebtoken');
+
 const generateBarcode = require('../../Services/barcodeService');
 
-router.get('/getmybet', logged, async (req, res)=> {
-    try{
+router.get('/getmybet', logged, async (req, res) => {
+    try {
         const user = await User.findOne({ _id: req.user._id }).populate('userRole').exec();
         if (!user) {
             return res.status(401).json({
                 name: "Could not find user.",
             });
         }
-        const betData = await Bet.find({ customer: req.user._id }).populate('matchId').exec();
+        const betData = await Bet.find({ customer: req.user._id }).populate('date').exec();
         res.status(200).json({ betData })
-    }catch(err){
+    } catch (err) {
         return res.status(500).json({ message: err });
     }
 })
@@ -33,27 +33,37 @@ router.post('/newbet', logged, async (req, res) => {
         let userData = req.user;
         let newBet = null;
         let tempArr = [];
-        betsData.forEach(item=> {
-            newBet = new Bet({
-                customer: userData._id,
+        let bettingEvents = {};
+        let today = new Date()
+        betsData.forEach(item => {
+            const odd = item.odds[0][item.selectedOdds] / 100;
+            const matchDate = item.matchDate === 'Today' ? today.getDate() + "."+  (today.getMonth() + 1) : item.matchDate === 'Tomorrow' ? (today.getDate() + 1) + (today.getMonth() + 1) : item.matchDate
+            console.log('here', matchDate)
+            bettingEvents = {
                 sportTypeId: item.sportTypeId,
-                initialStake: betState.initialStake,
-                tax: betState.tax,
-                stakePerBet: betState.stakeBet,
-                // maxWinning: betState.maxWinning,
-                betSystem: item.betSystem,
                 matchId: item.matchId,
+                matchDate: matchDate + ' ' + item.matchTime,
                 homeTeam: item.homeTeam,
                 awayTeam: item.awayTeam,
                 homeTeamScore: item.homeScore,
                 awayTeamScore: item.awayScore,
                 betType: item.betType,
-                // odds: item.odds,
+                odd: odd.toFixed(2),
                 selectedOdds: item.selectedOdds
-            })
-            tempArr.push(newBet)
+            }
+            tempArr.push(bettingEvents)
         });
-        Bet.insertMany(tempArr).then(result => 
+        newBet = new Bet({
+            customer: userData._id,
+            betSystem: betState.betSystem,
+            initialStake: betState.initialStake,
+            tax: betState.tax,
+            numBet: betState.numBet,
+            stakePerBet: betState.stakeBet,
+            maxWinning: betState.maxWinning,
+            bettingEvents: tempArr,
+        })
+        newBet.save().then(result =>
             res.status(200).json({ result })
         )
     } catch (err) {
@@ -66,7 +76,7 @@ router.post('/newbet', logged, async (req, res) => {
 router.post('/barcode', logged, async (req, res) => {
     let timestamp = Date.now();
     let userId = req.user._id;
-    
+
     let barcode = await generateBarcode(timestamp, userId);
     let newBarcode = new Barcode({
         barcode: barcode,
@@ -75,11 +85,11 @@ router.post('/barcode', logged, async (req, res) => {
 
     newBarcode.save()
         .then(result => {
-            return res.status(200).json({barcode: result.barcode});
+            return res.status(200).json({ barcode: result.barcode });
         })
         .catch(err => {
             console.log(err);
-            return res.status(500).json({err: err})
+            return res.status(500).json({ err: err })
         })
 });
 
