@@ -241,9 +241,9 @@ router.post('/', logged, async (req, res) => {
   }  
 })
 
-// @Route /admin/shop/{shopId}
+// @Route /admin/shop
 // @Summary an admin (or a distributor) is editing a shop
-router.put('/{shopId}', logged, async (req, res) => {
+router.put('/', logged, async (req, res) => {
   if(req.user.userRole.priority > 3){
     console.log('userRole', req.user.userRole)
     res.status(401).json({message: "You're not allowed to perform the operation"});
@@ -264,7 +264,7 @@ router.put('/{shopId}', logged, async (req, res) => {
   }
   try{
     shop = await Shop.findOneAndUpdate({
-      _id: req.params.shopId
+      _id: req.body.shopId
     },{
       name: req.body.title,
       currency: req.body.currency,
@@ -275,6 +275,26 @@ router.put('/{shopId}', logged, async (req, res) => {
   }catch(err) {
     console.log(err)
     return res.status(500).json({err:err})
+  }
+})
+
+// @Route /admin/shop
+// @Summary delete a shop
+router.delete('/', logged, async (req, res) => {
+  try{
+    shop = await Shop.findOne({_id: req.body.shopId});
+    if(!req.user._id.equals(shop.operator))
+      return res.status(401).json({message: "You don't have permission to do this operation"});
+
+    cashierRole = await Role.findOne({priority: 4});
+    cashier = await User.findOne({userRole: cashierRole._id});
+    await shop.delete();
+
+    return res.status(200).json({message: "Shop is deleted"});
+  }
+  catch(err){
+    console.log(err)
+    return res.status(500).json({err: err})
   }
 })
 

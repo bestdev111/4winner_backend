@@ -17,7 +17,7 @@ router.get('/transactiontype', logged, async(req, res) => {
 })
 
 // @Route get /admin/transactions
-router.post('/', logged, async (req, res) => {
+router.get('/', logged, async (req, res) => {
   if(req.user.userRole.priority > 4)
     return res.status(401).json({message: "You don't have permission to do this operation"})
   try{

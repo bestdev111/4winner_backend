@@ -12,20 +12,15 @@ const BetSchema = new Schema({
         ref: 'User',
         required: true
     },
-    sportTypeId: {
-        type: Number,
-        // ref: 'sportType',
-        required: true
-    },
-    betSystem: {
-        type: String,
-        required: true,
-        default: 'Single/Multiple'
-    },
     initialStake: {
         type: Number,
         required: true,
         min: 0,
+        default: 0
+    },
+    numBet: {
+        type: Number,
+        required: true,
         default: 0
     },
     tax: {
@@ -45,38 +40,70 @@ const BetSchema = new Schema({
         required: true,
         default: 0,
     },
-    matchId: {
-        type: String,
-        required: true,
-    },
-    homeTeam: {
-        type: String,
-        required: true,
-    },
-    awayTeam: {
-        type: String,
-        required: true,
-    },
-    homeTeamScore: {
+    maxWinning: {
         type: Number,
         required: true,
+        default: 0,
     },
-    awayTeamScore: {
-        type: Number,
-        required: true,
-    },
-    betType: {
+    betSystem: {
         type: String,
         required: true,
+        default: 'Single/Multiple'
     },
-    // odds: {
-    //     type: Array,
-    //     required: true,
-    // },
-    selectedOdds: {
-        type: String,
-        required: true,
-    },
+    bettingEvents: [{
+        sportTypeId: {
+            type: Number,
+            // ref: 'sportType',
+            required: true
+        },
+        matchId: {
+            type: String,
+            required: true,
+        },
+        homeTeam: {
+            type: String,
+            required: true,
+        },
+        awayTeam: {
+            type: String,
+            required: true,
+        },
+        homeTeamScore: {
+            type: Number,
+            required: true,
+        },
+        awayTeamScore: {
+            type: Number,
+            required: true,
+        },
+        betType: {
+            type: String,
+            required: true,
+        },
+        odd: {
+            type: Number,
+            required: true,
+            default: 0.00
+        },
+        selectedOdds: {
+            type: String,
+            required: true,
+        },
+        matchDate: {
+            type: String,
+            required: true,
+        },
+        state: {
+            type: Number,
+            required: true,
+            default: 0
+        },
+        isResolved: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+    }],
     paid: {
         type: Number,
         required: true,
@@ -98,7 +125,6 @@ const BetSchema = new Schema({
     payoutTime: {
         type: Date,
         required: true,
-        min: 0,
         default: 0
     },
     date: {
@@ -112,9 +138,9 @@ const BetSchema = new Schema({
         default: 0
     },
     isResolved: {
-        type: Number,
+        type: Boolean,
         required: true,
-        default: 0
+        default: false
     },
     details: {
         type: String
