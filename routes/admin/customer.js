@@ -9,7 +9,7 @@ const Role = require("../../models/role");
 const logged = require("../../middleware/login");
 const validateRegister = require("../../validation/validateRegister");
 const defaultValues = require("../../utils/defaultValue");
-const { getAllUsers } = require("../../Services/userService");
+const { getPlayers } = require("../../Services/userService");
 
 // @Route /admin/customer/create
 // @Summary an agent (or a cashier) is creating a user
@@ -172,7 +172,7 @@ router.get("/getusers", logged, async (req, res) => {
         res.status(401).json({
             message: "You're not allowed to perform operation",
         });
-    users = await getAllUsers(req.user);
+    users = await getPlayers(req.user);
     res.status(200).json({ users: users });
 });
 
