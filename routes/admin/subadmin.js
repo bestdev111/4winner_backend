@@ -387,7 +387,7 @@ router.post("/switchshop", logged, async (req, res) => {
 
     req.user.shop = req.body.shop;
     await req.user.save();
-    return res.status(200).json(req.user);
+    return res.status(200).json({ message: "Switched shop" });
 });
 
 module.exports = router;
