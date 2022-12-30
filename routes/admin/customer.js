@@ -74,7 +74,7 @@ router.post("/create", logged, async (req, res) => {
 // @Route put /admin/customer/update
 // @Summary an agent (or a cashier) is creating a user
 router.put("/update", logged, async (req, res) => {
-    if (req.user.userRole.role != "user")
+    if (req.user.userRole.role != "cashier")
         return res
             .status(401)
             .json({ message: "You're not allowed to perform operation" });

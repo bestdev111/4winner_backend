@@ -42,14 +42,14 @@ router.post('/', logged, async (req, res) => {
   // if the admin is creating the shop
   if(req.user.userRole.priority == 1){
     // admin has to input agent, distributor and cashier
-    if(req.body.agentUserName === null || req.body.agentUserName === undefined)
+    if(req.body.agentName === null || req.body.agentName === undefined)
       res.status(500).json({message: "Agent is needed"});
-    if(req.body.distributorUserName === null || req.body.distributorUserName === undefined)
+    if(req.body.distributorName === null || req.body.distributorName === undefined)
       res.status(500).json({message: "Distributor is needed"});
-    if(req.body.cashierUserName === null || req.body.cashierUserName === undefined)
+    if(req.body.cashierName === null || req.body.cashierName === undefined)
       res.status(500).json({message: "Cashier is needed"});
     // validate the input
-    if(req.body.title == '' || req.body.title === null || req.body.title === undefined)
+    if(req.body.shopTitle == '' || req.body.shopTitle === null || req.body.shopTitle === undefined)
       res.status(500).json({message: "Shop title is required"});
 
     try{
@@ -59,7 +59,7 @@ router.post('/', logged, async (req, res) => {
           return res.status(500).json({ error });
         }
         // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-        let user = await User.find({ userName: req.body.agentUserName }).exec();
+        let user = await User.find({ userName: req.body.agentName }).exec();
         if (user.length > 0) {
             return res.status(409).json({ error: "Agent's Name already exists." });
         }
@@ -70,23 +70,23 @@ router.post('/', logged, async (req, res) => {
             throw error;
         }
         // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-        user = await User.find({ userName: req.body.distributorUserName }).exec();
+        user = await User.find({ userName: req.body.distributorName }).exec();
         if (user.length > 0) {
           return res.status(409).json({ error: "Distributor's Name already exists." });
         }
         // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-        user = await User.find({ userName: req.body.cashierUserName }).exec();
+        user = await User.find({ userName: req.body.cashierName }).exec();
         if (user.length > 0) {
           return res.status(409).json({ error: "Cashier's Name already exists." });
         }
         // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-        let shop = await Shop.find({ name: req.body.title }).exec();
+        let shop = await Shop.find({ name: req.body.shopTitle }).exec();
         if (shop.length > 0) {
           return res.status(409).json({ error: "Shop name already exists." });
         }
         const newAgent = new User({
-          userName: req.body.agentUserName,
-          name: req.body.agentUserName,
+          userName: req.body.agentName,
+          name: req.body.agentName,
           balance: req.body.agentBalance,
           userRole: role[0]._id,
           parent: req.user._id,
@@ -108,8 +108,8 @@ router.post('/', logged, async (req, res) => {
                   throw error;
               }
               const newDistributor = new User({
-                userName: req.body.distributorUserName,
-                name: req.body.distributorUserName,
+                userName: req.body.distributorName,
+                name: req.body.distributorName,
                 balance: req.body.distributorBalance,
                 userRole: role[0]._id,
                 parent: createdAgent._id,
@@ -131,8 +131,8 @@ router.post('/', logged, async (req, res) => {
                         throw error;
                     }
                     const newCashier = new User({
-                      userName: req.body.cashierUserName,
-                      name: req.body.cashierUserName,
+                      userName: req.body.cashierName,
+                      name: req.body.cashierName,
                       userRole: role[0]._id,
                       parent: createdDistributor._id,
                       password: hash
@@ -141,12 +141,14 @@ router.post('/', logged, async (req, res) => {
                       .save()
                       .then(async createdCashier => {
                         newShop = new Shop({
-                          name: req.body.title,
-                          currency: req.body.currency,
-                          maxWin: req.body.maxWin,
+                          name: req.body.shopTitle,
+                          currency: req.body.shopCurrency,
+                          maxWin: req.body.shopMaxWin,
                           shopLimit: req.body.shopLimit,
-                          access: req.body.access,
-                          operator: createdDistributor._id
+                          access: req.body.shopAccess,
+                          operator: createdDistributor._id,
+                          allowedSportTypes: req.body.allowedSportType,
+                          isCasinoEnabled: req.body.isCasinoEnabled
                         })
                         newShop
                           .save()
@@ -214,22 +216,22 @@ router.post('/', logged, async (req, res) => {
   // if the distributor is creating the shop
   else if(req.user.userRole.priority == 3){
     // validate the input
-    if(req.body.title == '' || req.body.title === null || req.body.title === undefined)
+    if(req.body.shopTitle == '' || req.body.shopTitle === null || req.body.shopTitle === undefined)
       res.status(500).json({message: "Shop title is required"});
     // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-    let shop = await Shop.find({ name: req.body.title }).exec();
+    let shop = await Shop.find({ name: req.body.shopTitle }).exec();
     if (shop.length > 0) {
         return res.status(409).json({ error: "Shop name already exists." });
     }
     newShop = new Shop({
-      name: req.body.title,
-      currency: req.body.currency,
-      maxWin: req.body.maxWin,
+      name: req.body.shopTitle,
+      currency: req.body.shopCurrency,
+      maxWin: req.body.shopMaxWin,
       shopLimit: req.body.shopLimit,
-      access: req.body.access,
+      access: req.body.shopAccess,
       operator: req.user._id,
-      allowedSportTypes: req.user.allowedSportTypes,
-      isCasinoEnabled: req.user.isCasinoEnabled
+      allowedSportTypes: req.body.allowedSportType,
+      isCasinoEnabled: req.body.isCasinoEnabled
     })
     newShop
     .save()
@@ -257,10 +259,10 @@ router.put('/', logged, async (req, res) => {
   }
 
   // validate the input
-  if(req.body.title == '' || req.body.title === null || req.body.title === undefined)
+  if(req.body.shopTitle == '' || req.body.shopTitle === null || req.body.shopTitle === undefined)
     res.status(500).json({message: "Shop title is required"});
   // If there is a user whose userName is the same as the requested userName return name-already-exist error message
-  let shop = await Shop.find({ name: req.body.title }).exec();
+  let shop = await Shop.find({ name: req.body.shopTitle }).exec();
   if (shop.length > 0) {
       return res.status(409).json({ error: "Shop name already exists." });
   }
@@ -268,11 +270,14 @@ router.put('/', logged, async (req, res) => {
     shop = await Shop.findOneAndUpdate({
       _id: req.body.shopId
     },{
-      name: req.body.title,
-      currency: req.body.currency,
-      maxWin: req.body.maxWin,
+      name: req.body.shopTitle,
+      currency: req.body.shopCurrency,
+      maxWin: req.body.shopMaxWin,
       shopLimit: req.body.shopLimit,
-      access: req.body.access
+      access: req.body.shopAccess,
+      allowedSportTypes: req.body.allowedSportType,
+      isCasinoEnabled: req.body.isCasinoEnabled
+
     })
   }catch(err) {
     console.log(err)
