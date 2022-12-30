@@ -340,4 +340,18 @@ router.delete('/', logged, async (req, res) => {
   }
 })
 
+// @Route /admin/shop/getshop
+router.post('/getshop', logged, async (req, res) => {
+  try{
+    shop = await Shop.findOne({
+      _id: req.body.shop
+    })
+    return res.status(200).json({shop: shop});
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({err:err})
+  }
+})
+
+
 module.exports = router;
