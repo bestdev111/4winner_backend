@@ -9,12 +9,12 @@ const Role = require("../../models/role");
 const logged = require("../../middleware/login");
 const validateRegister = require("../../validation/validateRegister");
 const defaultValues = require("../../utils/defaultValue");
-const { getPlayers } = require("../../Services/userService");
+const { getCustomers } = require("../../Services/userService");
 
 // @Route /admin/customer/create
 // @Summary an agent (or a cashier) is creating a user
 router.post("/create", logged, async (req, res) => {
-    if (req.user.userRole.role != "agent")
+    if (req.user.userRole.role != "cashier")
         res.status(401).json({
             message: "You're not allowed to perform operation",
         });
@@ -39,52 +39,23 @@ router.post("/create", logged, async (req, res) => {
             }
             // find the object id of the requested role to refer
             try {
-                role = await Role.find({ role: "player" }).exec();
+                role = await Role.find({ role: "user" }).exec();
             } catch (error) {
                 return res
                     .status(404)
                     .json({ error: "This role does not exist" });
             }
-            // find the object id of the requested casino type to refer
-            casinoType = null;
-            if (req.body.casinoType)
-                try {
-                    casinoType = await CasinoType.find({
-                        name: req.body.casinoType,
-                    }).exec();
-                    casinoType = casinoType[0]._id;
-                } catch (error) {
-                    return res
-                        .status(404)
-                        .json({ error: "That casino type does not exist" });
-                }
-            // fetch the object ids of allowed Sport Types
-            allowedSportType = new Array();
-            try {
-                sportType = await SportType.find({
-                    name: { $in: req.body.allowedSportType },
-                }).exec();
-                sportType.forEach((element) => {
-                    allowedSportType.push(element._id);
-                });
-            } catch (error) {
-                return res
-                    .status(404)
-                    .json({ error: "Some of those sport types do not exist" });
-            }
             // now set up a new user
             const newUser = new User({
                 userName: req.body.userName,
                 name: req.body.name,
-                isCasinoEnabled: req.body.isCasinoEnabled,
-                casinoType: casinoType,
-                allowedSportType: allowedSportType,
                 maximumStakeLimit: req.body.maximumStakeLimit,
                 totalOddsLimit: req.body.totalOddsLimit,
                 isCashoutEnabled: req.body.isCashoutEnabled,
                 userRole: role[0]._id,
                 parent: req.user._id,
                 password: hash,
+                shop: req.user.shop
             });
             return newUser
                 .save()
@@ -103,7 +74,7 @@ router.post("/create", logged, async (req, res) => {
 // @Route put /admin/customer/update
 // @Summary an agent (or a cashier) is creating a user
 router.put("/update", logged, async (req, res) => {
-    if (req.user.userRole.role != "agent")
+    if (req.user.userRole.role != "user")
         return res
             .status(401)
             .json({ message: "You're not allowed to perform operation" });
@@ -114,31 +85,6 @@ router.put("/update", logged, async (req, res) => {
         if (!user) {
             return res.status(409).json({ error: "User not found" });
         }
-        // find the object id of the requested casino type to refer
-        casinoType = null;
-        if (req.body.casinoType)
-            try {
-                casinoType = await CasinoType.find({
-                    name: req.body.casinoType,
-                }).exec();
-                casinoType = casinoType[0]._id;
-            } catch (error) {
-                console.log("That casino type does not exist");
-                throw error;
-            }
-        // fetch the object ids of allowed Sport Types
-        allowedSportType = new Array();
-        try {
-            sportType = await SportType.find({
-                name: { $in: req.body.allowedSportType },
-            }).exec();
-            sportType.forEach((element) => {
-                allowedSportType.push(element._id);
-            });
-        } catch (error) {
-            console.log("Some of those sport types do not exist");
-            throw error;
-        }
         // now set up a new user
         user = await User.findOneAndUpdate(
             {
@@ -146,9 +92,6 @@ router.put("/update", logged, async (req, res) => {
             },
             {
                 name: req.body.name,
-                isCasinoEnabled: req.body.enableCasino,
-                casinoType: casinoType,
-                allowedSportType: allowedSportType,
                 maximumStakeLimit: req.body.maximumStakeLimit,
                 totalOddsLimit: req.body.totalOddsLimit,
                 isCashoutEnabled: req.body.isCashoutEnabled,
@@ -166,20 +109,20 @@ router.put("/update", logged, async (req, res) => {
 });
 
 // @Route /admin/customer/getusers
-// @Summary get users whose parent is that agent
+// @Summary get users whose parent is that cashier
 router.get("/getusers", logged, async (req, res) => {
-    if (req.user.userRole.role != "agent")
+    if (req.user.userRole.role != "cashier")
         res.status(401).json({
             message: "You're not allowed to perform operation",
         });
-    users = await getPlayers(req.user);
+    users = await getCustomers(req.user);
     res.status(200).json({ users: users });
 });
 
 // @Route /admin/customer/getuser  req.body -> userName
 // @Summary get user
 router.post("/getuser", logged, async (req, res) => {
-    if (req.user.userRole.role != "agent")
+    if (req.user.userRole.role != "cashier")
         res.status(401).json({
             message: "You're not allowed to perform operation",
         });
@@ -201,7 +144,7 @@ router.post("/getuser", logged, async (req, res) => {
 // @Route /admin/customer/changestatus
 // @Summary block or active the customer
 router.post("/changestatus", logged, async (req, res) => {
-    if (req.user.userRole.role != "agent")
+    if (req.user.userRole.role != "cashier")
         res.status(401).json({
             message: "You're not allowed to perform operation",
         });
@@ -227,7 +170,7 @@ router.post("/changestatus", logged, async (req, res) => {
 // @Route /admin/customer/changepass
 // @Summary block or active the customer
 router.post("/changepass", logged, async (req, res) => {
-    if (req.user.userRole.role != "agent")
+    if (req.user.userRole.role != "cashier")
         res.status(401).json({
             message: "You're not allowed to perform operation",
         });

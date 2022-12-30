@@ -30,6 +30,16 @@ const ShopSchema = new Schema({
       type: Schema.Types.ObjectId,
       required: true,
       refer: 'User'
+    },
+    allowedSportTypes: [
+      {
+        type: Schema.Types.ObjectId,
+        refer: 'SportType'
+      }
+    ],
+    isCasinoEnabled: {
+      type: Boolean,
+      default: false
     }
 }, {
     timestamps: true
