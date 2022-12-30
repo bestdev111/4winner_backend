@@ -189,11 +189,6 @@ router.post("/", logged, async (req, res) => {
                                                                 currency:
                                                                     req.body
                                                                         .shopCurrency,
-                                                                maxWin: req.body
-                                                                    .shopMaxWin,
-                                                                shopLimit:
-                                                                    req.body
-                                                                        .shopLimit,
                                                                 access: req.body
                                                                     .shopAccess,
                                                                 operator:
@@ -204,6 +199,10 @@ router.post("/", logged, async (req, res) => {
                                                                 isCasinoEnabled:
                                                                     req.body
                                                                         .isCasinoEnabled,
+                                                                totalOddsLimit: req.body.totalOddsLimit,
+                                                                maximumStakeLimit: req.body.maximumStakeLimit,
+                                                                isSlotEnabled: req.body.isSlotEnabled,
+                                                                refund: req.body.refund
                                                             });
                                                             newShop
                                                                 .save()
@@ -349,12 +348,14 @@ router.post("/", logged, async (req, res) => {
         newShop = new Shop({
             name: req.body.shopTitle,
             currency: req.body.shopCurrency,
-            maxWin: req.body.shopMaxWin,
-            shopLimit: req.body.shopLimit,
             access: req.body.shopAccess,
             operator: req.user._id,
             allowedSportTypes: req.body.allowedSportType,
             isCasinoEnabled: req.body.isCasinoEnabled,
+            totalOddsLimit: req.body.totalOddsLimit,
+            maximumStakeLimit: req.body.maximumStakeLimit,
+            isSlotEnabled: req.body.isSlotEnabled,
+            refund: req.body.refund
         });
         newShop
             .save()

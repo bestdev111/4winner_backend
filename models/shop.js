@@ -14,14 +14,6 @@ const ShopSchema = new Schema({
       type: String,
       refer: 'Currency'
     },
-    maxWin:{
-      type: Number,
-      default:1000
-    },
-    shopLimit:{
-      type: Number,
-      default: 5000
-    },
     balance:{
       type: Number,
       default: 0
@@ -40,6 +32,22 @@ const ShopSchema = new Schema({
     isCasinoEnabled: {
       type: Boolean,
       default: false
+    },
+    isSlotEnabled: {
+      type: Boolean,
+      default: false
+    },
+    maximumStakeLimit: {
+      type: Number,
+      default: 5
+    },
+    totalOddsLimit: {
+      type: Number,
+      default: 3
+    },
+    refund: {
+      type: Number,
+      default: 5
     }
 }, {
     timestamps: true

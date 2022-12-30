@@ -47,14 +47,16 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
-    casinoType: {
-        type: Schema.Types.ObjectId,
-        ref: 'CasinoType'
+    isSlotEnabled: {
+        type: Boolean,
+        default: false
     },
-    allowedSportType: [{
-        type: Schema.Types.ObjectId,
-        ref: 'SportsType'
-    }],
+    allowedSportTypes: [
+        {
+          type: Schema.Types.ObjectId,
+          refer: 'SportType'
+        }
+      ],
     maximumStakeLimit: {
         type: Number,
         default: 0
@@ -78,6 +80,10 @@ const UserSchema = new Schema({
     shop: {
         type: Schema.Types.ObjectId,
         ref: 'Shop'
+    },
+    refund: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true
