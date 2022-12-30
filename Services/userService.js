@@ -10,7 +10,7 @@ const getCustomers = async (currentUser) => {
     // fetch all users whose parent is the signed-in agent
     users = await User.find({
       shop: currentUser.shop,
-      userRole: role
+      userRole: role._id
     })
     .exec();
     return users;
@@ -25,20 +25,20 @@ const getUsers = async (user) => {
   
   try{
     let users = [];
+    cashierRole = await Role.findOne({
+      role: 'cashier'
+    });
+    playerRole = await Role.findOne({
+      role: 'user'
+    });
+    agentRole = await Role.findOne({
+      role: 'agent',
+    })
+    distributorRole = await Role.findOne({
+      role: 'distributor',
+    })
     // add users in shop
     if(user.shop){
-      cashierRole = await Role.find({
-        role: 'cashier'
-      });
-      playerRole = await Role.find({
-        role: 'user'
-      });
-      agentRole = await Role.find({
-        role: 'agent',
-      })
-      distributorRole = await Role.find({
-        role: 'distributor',
-      })
 
       shopUsers = await User.find({
         shop: user.shop,
@@ -48,6 +48,8 @@ const getUsers = async (user) => {
         shop: user.shop,
         userRole: playerRole._id
       })
+
+      // console.log("shopid", user.shop, "roleId", cashierRole._id, playerRole._id)
 
       users = users.concat(shopUsers);
       users = users.concat(shopCashier);
@@ -63,14 +65,14 @@ const getUsers = async (user) => {
 
       users = users.concat(agents);
 
-      await agents.forEach(async agent => {
+      for(let idx = 0; idx < agents.length; idx ++){
         distributors = await User.find({
           userRole: distributorRole._id,
-          parent: agent._id
+          parent: agents[idx]._id
         })
-
+        // console.log('role', distributorRole._id, 'agent', agents[idx]._id, distributors)
         users = users.concat(distributors)
-      });
+      };
     }
 
     // if it's agent add it's distributors
