@@ -227,7 +227,9 @@ router.post('/', logged, async (req, res) => {
       maxWin: req.body.maxWin,
       shopLimit: req.body.shopLimit,
       access: req.body.access,
-      operator: req.user._id
+      operator: req.user._id,
+      allowedSportTypes: req.user.allowedSportTypes,
+      isCasinoEnabled: req.user.isCasinoEnabled
     })
     newShop
     .save()
@@ -287,7 +289,42 @@ router.delete('/', logged, async (req, res) => {
       return res.status(401).json({message: "You don't have permission to do this operation"});
 
     cashierRole = await Role.findOne({priority: 4});
-    cashier = await User.findOne({userRole: cashierRole._id});
+    cashier = await User.findOne({userRole: cashierRole._id, shop: req.body.shopId});
+    
+    playerRole = await Role.findOne({priority: 5});
+    users = await User.find({
+      shop: req.body.shopId,
+      userRole: playerRole._id
+    })
+
+    await users.forEach(async element => {
+      if(element.balance > 0){
+        shop.balance += element.balance;
+        transaction1 = new Transaction({
+          cashier: cashier._id,
+          customer: element._id,
+          type: 45,
+          amount: -1 * element.balance
+        });
+        await transaction1.save();
+      }
+      await element.delete()
+    });
+    await shop.save();
+
+    if(shop.balance > 0){
+      req.user.balance += shop.balance;
+      await req.user.save();
+      transaction1 = new Transaction({
+        distributor: req.user._id,
+        shop: req.body.shopId,
+        type: 34,
+        amount: -1 * shop.balance
+      });
+      await transaction1.save();
+    }
+
+    await cashier.delete();
     await shop.delete();
 
     return res.status(200).json({message: "Shop is deleted"});
