@@ -26,6 +26,7 @@ router.get("/", async (req, res) => {
                         role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
+                        shop: user.shop,
                     };
                     arr.push(obj);
                     index++;
@@ -56,6 +57,7 @@ router.get("/", async (req, res) => {
                         role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
+                        shop: user.shop,
                     };
                     arr.push(obj);
                     index++;
