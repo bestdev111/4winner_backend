@@ -16,7 +16,7 @@ const { getShops } = require("../../Services/shopServices");
 // create subadmin
 router.post("/", logged, async (req, res) => {
     console.log("🚀 ~ file: subadmin.js:18 ~ router.post ~ req.body", req.body);
-    if (req.user.userRole.priority > 3)
+    if (req.user.userRole.priority > 4)
         return res.status(401).json({
             message: "You don't have permission to do this operation",
         });
@@ -77,14 +77,15 @@ router.post("/", logged, async (req, res) => {
                         shop: req.body.shop,
                     });
                     shop = await Shop.find({
-                        _id: req.user.shop
-                    })
-                    if(role.priority == 5){
+                        _id: req.user.shop,
+                    });
+                    if (role.priority == 5) {
                         newUser.isSlotEnabled = shop.isSlotEnabled;
                         newUser.allowedSportTypes = shop.allowedSportTypes;
                         newUser.isCasinoEnabled = shop.isCasinoEnabled;
                         newUser.maximumStakeLimit = shop.maximumStakeLimit;
                         newUser.totalOddsLimit = shop.totalOddsLimit;
+                        newUser.shop = req.user.shop;
                     }
                     newUser
                         .save()
