@@ -43,11 +43,9 @@ router.post("/", logged, async (req, res) => {
 
                 if (role.priority == 4) {
                     if (req.body.shop === null || req.body.shop === undefined)
-                        return res
-                            .status(500)
-                            .json({
-                                message: "Shop is required to create a cashier",
-                            });
+                        return res.status(500).json({
+                            message: "Shop is required to create a cashier",
+                        });
 
                     let shop = await Shop.find({
                         _id: req.body.shop,
@@ -64,11 +62,9 @@ router.post("/", logged, async (req, res) => {
                     });
 
                     if (user.length)
-                        return res
-                            .status(500)
-                            .json({
-                                message: "That shop already has a creditier",
-                            });
+                        return res.status(500).json({
+                            message: "That shop already has a creditier",
+                        });
                 }
 
                 return bcrypt.hash(req.body.password, 10, async (err, hash) => {
@@ -391,7 +387,7 @@ router.post("/switchshop", logged, async (req, res) => {
 
     req.user.shop = req.body.shop;
     await req.user.save();
-    return res.status(200).json({ message: "Switched shop" });
+    return res.status(200).json(req.user);
 });
 
 module.exports = router;
