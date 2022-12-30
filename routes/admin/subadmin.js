@@ -2,13 +2,18 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 
+const logged = require("../../middleware/login");
+
 const User = require("../../models/user");
 const Role = require("../../models/role");
 const Shop = require("../../models/shop");
 const Transaction = require('../../models/transaction')
-const logged = require("../../middleware/login");
+
+const {getUsers} = require("../../Services/userService");
+const {getShops} = require('../../Services/shopServices')
 
 // @Route post /admin/subadmin/
+// create subadmin
 router.post('/', logged, async (req, res) => {
   if(req.user.userRole.priority > 3)
     return res.status(401).json({message: "You don't have permission to do this operation"})
@@ -172,10 +177,9 @@ router.post('/shopin', logged, async (req, res) => {
     shop = await Shop.findOne({
       _id: req.body.shop
     }).populate('operator')
-    if(shop.operator.userName != req.user.userName){
-      console.log('!!!', shop.operator, req.user.userName)
+    if(!shop.operator.equals(req.user._id))
+      // console.log('!!!', shop.operator, req.user._id)
       return res.status(401).json({message: "You can't do this operation to this shop: " + shop.name})
-    }
     
     if(req.user.balance < req.body.amount)
       return res.status(500).json({message: "You don't have enough credit to fund"})
@@ -221,7 +225,7 @@ router.post('/shopout', logged, async (req, res) => {
     shop = await Shop.findOne({
       _id: req.body.shop
     })
-    if(shop.operator !== req.user._id)
+    if(!shop.operator.equals(req.user._id))
       return res.status(401).json({message: "You can't do this operation to this shop: " + shop.name})
     
     if(shop.balance < req.body.amount)
@@ -257,5 +261,39 @@ router.post('/shopout', logged, async (req, res) => {
     return res.status(500).json({err: err})
   }
 })
+
+// @Route get /admin/subadmin/getusers
+router.get('/getusers', logged, async (req, res) => {
+  if(req.user.userRole.priority > 3)
+    return res.status(401).json({message: "You're not allowed to do this operation"});
+
+  try{
+    return await getUsers(req.user)    
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({err: err})
+  }
+})
+
+// @Route post /admin/subadmin/switchshop
+router.post('/switchshop', logged, async (req, res) => {
+  if(req.user.userRole.priority > 3)
+    return res.status(401).json({message:"You don't have permission to switch shop"});
+
+  shops = await getShops(req.user)
+  doesBelongto = false;
+  await shops.forEach(shop => {
+    if(shop._id == req.body.shop)
+      doesBelongto = true;
+  });
+
+  if(!doesBelongto)
+    return res.status(401).json({message: "That shop is not under your control"})
+
+  req.user.shop = req.body.shop;
+  return res.status(200).json({message: "Switched shop"})
+})
+
+// @Route post /admin/subadmin/switchShop
 
 module.exports = router;
