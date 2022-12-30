@@ -268,7 +268,7 @@ router.get('/getusers', logged, async (req, res) => {
     return res.status(401).json({message: "You're not allowed to do this operation"});
 
   try{
-    return await getUsers(req.user)    
+    return res.status(200).json({users: await getUsers(req.user)})
   }catch(err){
     console.log(err);
     return res.status(500).json({err: err})
@@ -281,6 +281,7 @@ router.post('/switchshop', logged, async (req, res) => {
     return res.status(401).json({message:"You don't have permission to switch shop"});
 
   shops = await getShops(req.user)
+  // console.log(req.user.userName, shops)
   doesBelongto = false;
   await shops.forEach(shop => {
     if(shop._id == req.body.shop)
@@ -291,9 +292,8 @@ router.post('/switchshop', logged, async (req, res) => {
     return res.status(401).json({message: "That shop is not under your control"})
 
   req.user.shop = req.body.shop;
+  await req.user.save()
   return res.status(200).json({message: "Switched shop"})
 })
-
-// @Route post /admin/subadmin/switchShop
 
 module.exports = router;
