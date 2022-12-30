@@ -26,6 +26,7 @@ router.get("/", async (req, res) => {
                         role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
+                        shop: user.shop,
                     };
                     arr.push(obj);
                     index++;
@@ -56,6 +57,7 @@ router.get("/", async (req, res) => {
                         role: user.userRole,
                         lang: user.lang,
                         balance: user.balance,
+                        shop: user.shop,
                     };
                     arr.push(obj);
                     index++;
@@ -90,7 +92,9 @@ router.post("/login", async (req, res) => {
         return res.status(400).json(errors);
     }
     try {
-        const user = await User.findOne({ userName: req.body.userName }).populate('userRole').exec();
+        const user = await User.findOne({ userName: req.body.userName })
+            .populate("userRole")
+            .exec();
         if (!user) {
             return res.status(401).json({
                 name: "Could not find user.",
@@ -115,6 +119,7 @@ router.post("/login", async (req, res) => {
                             userRole: user.userRole.role,
                             lang: user.lang,
                             balance: user.balance,
+                            shop: user.shop,
                         },
                         dotenv.parsed.SECRET_KEY,
                         {
@@ -154,16 +159,21 @@ router.post("/register", async (req, res) => {
             }
             // find the object id of the requested role to refer
             try {
-                role = await Role.find({role: req.body.role}).exec();
-                console.log('fetched ' + req.body.role + ' role is ', role[0]._id);
+                role = await Role.find({ role: req.body.role }).exec();
+                console.log(
+                    "fetched " + req.body.role + " role is ",
+                    role[0]._id
+                );
             } catch (error) {
-                return res.status(500).json({ error: "That role does not exist" });
+                return res
+                    .status(500)
+                    .json({ error: "That role does not exist" });
             }
             const newUser = new User({
                 userName: req.body.userName,
                 name: req.body.name,
                 userRole: role[0]._id,
-                password: hash
+                password: hash,
             });
             return newUser
                 .save()
@@ -184,8 +194,7 @@ router.post("/update", async (req, res) => {
             { _id: req.body.userId },
             { lang: req.body.lang },
             { new: true, upsert: true, returnOriginal: false }
-        )
-        .populate('userRole');
+        ).populate("userRole");
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -197,6 +206,7 @@ router.post("/update", async (req, res) => {
                 userRole: user.userRole.role,
                 lang: user.lang,
                 balance: user.balance,
+                shop: user.shop,
             },
             dotenv.parsed.SECRET_KEY,
             { expiresIn: "3h" }

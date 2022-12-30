@@ -43,11 +43,9 @@ router.post("/", logged, async (req, res) => {
 
                 if (role.priority == 4) {
                     if (req.body.shop === null || req.body.shop === undefined)
-                        return res
-                            .status(500)
-                            .json({
-                                message: "Shop is required to create a cashier",
-                            });
+                        return res.status(500).json({
+                            message: "Shop is required to create a cashier",
+                        });
 
                     let shop = await Shop.find({
                         _id: req.body.shop,
@@ -64,11 +62,9 @@ router.post("/", logged, async (req, res) => {
                     });
 
                     if (user.length)
-                        return res
-                            .status(500)
-                            .json({
-                                message: "That shop already has a creditier",
-                            });
+                        return res.status(500).json({
+                            message: "That shop already has a creditier",
+                        });
                 }
 
                 return bcrypt.hash(req.body.password, 10, async (err, hash) => {
@@ -80,6 +76,16 @@ router.post("/", logged, async (req, res) => {
                         parent: req.user._id,
                         shop: req.body.shop,
                     });
+                    shop = await Shop.find({
+                        _id: req.user.shop
+                    })
+                    if(role.priority == 5){
+                        newUser.isSlotEnabled = shop.isSlotEnabled;
+                        newUser.allowedSportTypes = shop.allowedSportTypes;
+                        newUser.isCasinoEnabled = shop.isCasinoEnabled;
+                        newUser.maximumStakeLimit = shop.maximumStakeLimit;
+                        newUser.totalOddsLimit = shop.totalOddsLimit;
+                    }
                     newUser
                         .save()
                         .then((savedUser) => {
@@ -357,7 +363,7 @@ router.post("/shopout", logged, async (req, res) => {
 
 // @Route get /admin/subadmin/getusers
 router.get("/getusers", logged, async (req, res) => {
-    if (req.user.userRole.priority > 3)
+    if (req.user.userRole.priority > 4)
         return res
             .status(401)
             .json({ message: "You're not allowed to do this operation" });
